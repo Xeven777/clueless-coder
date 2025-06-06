@@ -21,6 +21,8 @@
     "build:linux": "electron-vite build && electron-builder --linux"
   },
   "dependencies": {
+    "@ai-sdk/google": "^1.2.19",
+    "@ai-sdk/openai": "^1.3.22",
     "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/utils": "^4.0.0",
     "@google/generative-ai": "^0.24.1",
@@ -28,6 +30,7 @@
     "@radix-ui/react-toast": "^1.2.14",
     "@tailwindcss/postcss": "^4.1.8",
     "@tanstack/react-query": "^5.80.6",
+    "ai": "^4.3.16",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.488.0",
@@ -37,7 +40,8 @@
     "screenshot-desktop": "^1.15.1",
     "tailwind-merge": "^3.3.0",
     "tailwindcss": "^4.1.8",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "zod": "^3.25.55"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "^3.0.0",
