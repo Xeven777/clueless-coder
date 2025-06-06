@@ -1,0 +1,89 @@
+name: Build and Publish Silent Coder
+
+on:
+  push:
+    tags:
+      - v*
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    # Keep the overall job timeout
+    timeout-minutes: 60
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18 # Or your preferred Node version
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10.5.2 # Or your preferred pnpm version
+
+      - name: Install dependencies
+        # This installs @electron/notarize from package.json
+        run: pnpm install --no-frozen-lockfile
+
+      # Windows-specific publish step
+      - name: Build and Publish (Windows)
+        if: matrix.os == 'windows-latest'
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 45
+          max_attempts: 3
+          command: pnpm run build:win -- --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEBUG: electron-builder # Optional: for detailed logs
+
+      # macOS-specific publish step (Build and Sign)
+      - name: Build and Publish (macOS)
+        if: matrix.os == 'macos-latest'
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 45 # Keep extended timeout for signing
+          max_attempts: 3
+          # Assumes 'pnpm run build:mac' uses your electron-builder.yml
+          command: pnpm run build:mac -- --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          CSC_LINK: ${{ secrets.MAC_CERTIFICATE }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTIFICATE_PASSWORD }}
+          CSC_IDENTITY_AUTO_DISCOVERY: true # Use auto-discovery
+          CSC_TIMEOUT: 1800000 # Keep increased timeout (30 minutes)
+          # Add more specific debug logs for signing
+          DEBUG: 'electron-builder*,electron-osx-sign*'
+
+      # Separate Notarization Step for macOS
+      - name: Notarize macOS App
+        if: matrix.os == 'macos-latest'
+        # Add retry here as well, notarization can sometimes fail temporarily
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 30 # Generous timeout for notarization
+          max_attempts: 3
+          # Execute the dedicated notarization script
+          command: node notarize.js
+        env:
+          # Pass necessary values to the script via environment variables
+          APP_BUNDLE_ID: com.kuluruvineeth.silentcoder
+          APP_PATH: dist/mac-arm64/silent-coder.app
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }} # Ensure this uses the correct secret name
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        # shell: bash # Not needed when using node -e
