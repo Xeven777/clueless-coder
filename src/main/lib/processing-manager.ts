@@ -1,15 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BrowserWindow } from 'electron'
 import { ScreenshotManager } from './screenshot-manager'
 import { state } from '../index'
-// import OpenAI from 'openai' // No longer needed
-// import { GoogleGenerativeAI } from '@google/generative-ai' // No longer needed
 import { configManager } from './config-manager'
 import fs from 'fs'
-
-// Vercel AI SDK imports
 import { generateText, generateObject, CoreMessage, LanguageModel } from 'ai'
-import { createOpenAI } from '@ai-sdk/openai' // Using createOpenAI for provider instance
-import { createGoogleGenerativeAI } from '@ai-sdk/google' // Using createGoogleGenerativeAI
+import { createOpenAI } from '@ai-sdk/openai'
+import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { z } from 'zod'
 
 export interface IProcessingManager {
@@ -17,9 +14,7 @@ export interface IProcessingManager {
   getScreenshotManager: () => ScreenshotManager | null
   getView: () => 'queue' | 'solutions' | 'debug'
   setView: (view: 'queue' | 'solutions' | 'debug') => void
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getProblemInfo: () => any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setProblemInfo: (problemInfo: any) => void
   getScreenshotQueue: () => string[]
   getExtraScreenshotQueue: () => string[]
@@ -44,9 +39,6 @@ type ProblemInfo = z.infer<typeof problemInfoSchema>
 export class ProcessingManager {
   private deps: IProcessingManager
   private screenshotManager: ScreenshotManager | null = null
-  // private openaiClient: OpenAI | null = null // Replaced by Vercel AI SDK
-  // private geminiClient: GoogleGenerativeAI | null = null // Replaced by Vercel AI SDK
-
   private vercelOpenAI: ReturnType<typeof createOpenAI> | null = null
   private vercelGoogle: ReturnType<typeof createGoogleGenerativeAI> | null = null
 
@@ -214,7 +206,6 @@ export class ProcessingManager {
             try {
               return {
                 path,
-                // preview: await this.screenshotManager?.getImagePreview(path), // Not directly used in Vercel call
                 data: fs.readFileSync(path) // Read as Buffer for Vercel AI SDK
               }
             } catch (error) {
@@ -253,7 +244,7 @@ export class ProcessingManager {
         this.deps.setView('solutions')
       } catch (error: any) {
         console.error('Error processing screenshots:', error)
-        if (error.name === 'AbortError') {
+        if (error instanceof Error && error.name === 'AbortError') {
           console.log('Screenshot processing aborted.')
           mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.NO_SCREENSHOTS) // Or a specific ABORTED event
         } else {
@@ -394,7 +385,7 @@ export class ProcessingManager {
           { role: 'user', content: userMessagesContent }
         ],
         temperature: 0.2,
-        maxTokens: 4000, // Vercel SDK might have different defaults or ways to set this
+        maxTokens: llmProvider.provider == 'openai' ? 4000 : 6000, // Vercel SDK might have different defaults or ways to set this
         mode: 'json', // Enforce JSON output mode if supported by the model/provider
         abortSignal
       })
