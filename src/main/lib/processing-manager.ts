@@ -7,6 +7,7 @@ import fs from 'fs'
 import { generateText, generateObject, CoreMessage, LanguageModel } from 'ai'
 import { createOpenAI } from '@ai-sdk/openai'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
+import { createGroq } from '@ai-sdk/groq'
 import { z } from 'zod'
 
 export interface IProcessingManager {
@@ -41,6 +42,7 @@ export class ProcessingManager {
   private screenshotManager: ScreenshotManager | null = null
   private vercelOpenAI: ReturnType<typeof createOpenAI> | null = null
   private vercelGoogle: ReturnType<typeof createGoogleGenerativeAI> | null = null
+  private vercelGroq: ReturnType<typeof createGroq> | null = null
 
   private currentProcessingAbortController: AbortController | null = null
   private currentExtraProcessingAbortController: AbortController | null = null
@@ -61,6 +63,7 @@ export class ProcessingManager {
       const config = configManager.loadConfig()
       this.vercelOpenAI = null
       this.vercelGoogle = null
+      this.vercelGroq = null
 
       if (config.apiProvider === 'openai') {
         if (config.apiKey) {
@@ -84,11 +87,22 @@ export class ProcessingManager {
         } else {
           console.log('Vercel Google provider not initialized: No API key provided')
         }
+      } else if (config.apiProvider === 'groq') {
+        if (config.apiKey) {
+          this.vercelGroq = createGroq({
+            apiKey: config.apiKey
+            // Add other Groq specific configurations here
+          })
+          console.log('Vercel Groq provider initialized successfully')
+        } else {
+          console.log('Vercel Groq provider not initialized: No API key provided')
+        }
       }
     } catch (error) {
       console.error('Error initializing Vercel AI provider:', error)
       this.vercelOpenAI = null
       this.vercelGoogle = null
+      this.vercelGroq = null
     }
   }
 
@@ -99,6 +113,8 @@ export class ProcessingManager {
       return this.vercelOpenAI(config.extractionModel || 'gpt-4o') // Default model if not in config
     } else if (config.apiProvider === 'gemini' && this.vercelGoogle) {
       return this.vercelGoogle(config.extractionModel || 'gemini-1.5-flash-latest')
+    } else if (config.apiProvider === 'groq' && this.vercelGroq) {
+      return this.vercelGroq(config.extractionModel || 'groq-1.5-flash-latest')
     }
     return null
   }
@@ -109,6 +125,8 @@ export class ProcessingManager {
       return this.vercelOpenAI(config.solutionModel || 'gpt-4o')
     } else if (config.apiProvider === 'gemini' && this.vercelGoogle) {
       return this.vercelGoogle(config.solutionModel || 'gemini-1.5-flash-latest')
+    } else if (config.apiProvider === 'groq' && this.vercelGroq) {
+      return this.vercelGroq(config.solutionModel || 'groq-1.5-flash-latest')
     }
     return null
   }
@@ -119,6 +137,8 @@ export class ProcessingManager {
       return this.vercelOpenAI(config.debuggingModel || 'gpt-4o')
     } else if (config.apiProvider === 'gemini' && this.vercelGoogle) {
       return this.vercelGoogle(config.debuggingModel || 'gemini-1.5-flash-latest') // Ensure this model supports vision
+    } else if (config.apiProvider === 'groq' && this.vercelGroq) {
+      return this.vercelGroq(config.debuggingModel || 'groq-1.5-flash-latest')
     }
     return null
   }

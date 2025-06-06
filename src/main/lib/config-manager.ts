@@ -6,7 +6,7 @@ import OpenAI from 'openai'
 
 interface Config {
   apiKey: string
-  apiProvider: 'openai' | 'gemini'
+  apiProvider: 'openai' | 'gemini' | 'groq'
   extractionModel: string
   solutionModel: string
   debuggingModel: string
@@ -62,7 +62,7 @@ export class ConfigManager extends EventEmitter {
     }
   }
 
-  private sanitizeModelSelection(model: string, provider: 'openai' | 'gemini') {
+  private sanitizeModelSelection(model: string, provider: 'openai' | 'gemini' | 'groq') {
     if (provider === 'openai') {
       const allowedModels = ['gpt-4o-mini', 'gpt-4o']
       if (!allowedModels.includes(model)) {
