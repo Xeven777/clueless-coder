@@ -1,19 +1,21 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BrowserWindow } from 'electron'
 import { ScreenshotManager } from './screenshot-manager'
 import { state } from '../index'
-import OpenAI from 'openai'
-import { GoogleGenerativeAI } from '@google/generative-ai'
 import { configManager } from './config-manager'
 import fs from 'fs'
+import { generateText, generateObject, CoreMessage, LanguageModel } from 'ai'
+import { createOpenAI } from '@ai-sdk/openai'
+import { createGoogleGenerativeAI } from '@ai-sdk/google'
+import { createGroq } from '@ai-sdk/groq'
+import { z } from 'zod'
 
 export interface IProcessingManager {
   getMainWindow: () => BrowserWindow | null
   getScreenshotManager: () => ScreenshotManager | null
   getView: () => 'queue' | 'solutions' | 'debug'
   setView: (view: 'queue' | 'solutions' | 'debug') => void
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getProblemInfo: () => any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setProblemInfo: (problemInfo: any) => void
   getScreenshotQueue: () => string[]
   getExtraScreenshotQueue: () => string[]
@@ -26,11 +28,21 @@ export interface IProcessingManager {
   PROCESSING_EVENTS: typeof state.PROCESSING_EVENTS
 }
 
+// Define Zod schema for problem information
+const problemInfoSchema = z.object({
+  problem_statement: z.string().min(1, 'Problem statement is required.'),
+  constraints: z.string().optional(),
+  example_input: z.string().optional(),
+  example_output: z.string().optional()
+})
+type ProblemInfo = z.infer<typeof problemInfoSchema>
+
 export class ProcessingManager {
   private deps: IProcessingManager
   private screenshotManager: ScreenshotManager | null = null
-  private openaiClient: OpenAI | null = null
-  private geminiClient: GoogleGenerativeAI | null = null
+  private vercelOpenAI: ReturnType<typeof createOpenAI> | null = null
+  private vercelGoogle: ReturnType<typeof createGoogleGenerativeAI> | null = null
+  private vercelGroq: ReturnType<typeof createGroq> | null = null
 
   private currentProcessingAbortController: AbortController | null = null
   private currentExtraProcessingAbortController: AbortController | null = null
@@ -49,37 +61,86 @@ export class ProcessingManager {
   private initializeAiClient(): void {
     try {
       const config = configManager.loadConfig()
+      this.vercelOpenAI = null
+      this.vercelGoogle = null
+      this.vercelGroq = null
 
       if (config.apiProvider === 'openai') {
         if (config.apiKey) {
-          this.openaiClient = new OpenAI({
+          this.vercelOpenAI = createOpenAI({
             apiKey: config.apiKey,
-            timeout: 60000,
-            maxRetries: 2
+            // You can add other OpenAI specific configurations here from the Vercel SDK docs
+            // e.g., baseURL, defaultHeaders, etc.
+            compatibility: 'strict' // or 'compatible' or undefined
           })
-          this.geminiClient = null
-          console.log('OpenAI client initialized successfully')
+          console.log('Vercel OpenAI provider initialized successfully')
         } else {
-          this.openaiClient = null
-          this.geminiClient = null
-          console.log('OpenAI client not initialized: No API key provided')
+          console.log('Vercel OpenAI provider not initialized: No API key provided')
         }
       } else if (config.apiProvider === 'gemini') {
-        this.openaiClient = null
         if (config.apiKey) {
-          this.geminiClient = new GoogleGenerativeAI(config.apiKey)
-          console.log('Gemini client initialized successfully')
+          this.vercelGoogle = createGoogleGenerativeAI({
+            apiKey: config.apiKey
+            // Add other Google specific configurations here
+          })
+          console.log('Vercel Google provider initialized successfully')
         } else {
-          this.openaiClient = null
-          this.geminiClient = null
-          console.log('Gemini client not initialized: No API key provided')
+          console.log('Vercel Google provider not initialized: No API key provided')
+        }
+      } else if (config.apiProvider === 'groq') {
+        if (config.apiKey) {
+          this.vercelGroq = createGroq({
+            apiKey: config.apiKey
+            // Add other Groq specific configurations here
+          })
+          console.log('Vercel Groq provider initialized successfully')
+        } else {
+          console.log('Vercel Groq provider not initialized: No API key provided')
         }
       }
     } catch (error) {
-      console.error('Error initializing AI client:', error)
-      this.openaiClient = null
-      this.geminiClient = null
+      console.error('Error initializing Vercel AI provider:', error)
+      this.vercelOpenAI = null
+      this.vercelGoogle = null
+      this.vercelGroq = null
     }
+  }
+
+  private getActiveLLMProvider(): LanguageModel | null {
+    const config = configManager.loadConfig()
+    if (config.apiProvider === 'openai' && this.vercelOpenAI) {
+      // Model specified here will be used. Config model names should align.
+      return this.vercelOpenAI(config.extractionModel || 'gpt-4o') // Default model if not in config
+    } else if (config.apiProvider === 'gemini' && this.vercelGoogle) {
+      return this.vercelGoogle(config.extractionModel || 'gemini-1.5-flash-latest')
+    } else if (config.apiProvider === 'groq' && this.vercelGroq) {
+      return this.vercelGroq(config.extractionModel || 'groq-1.5-flash-latest')
+    }
+    return null
+  }
+
+  private getSolutionLLMProvider(): LanguageModel | null {
+    const config = configManager.loadConfig()
+    if (config.apiProvider === 'openai' && this.vercelOpenAI) {
+      return this.vercelOpenAI(config.solutionModel || 'gpt-4o')
+    } else if (config.apiProvider === 'gemini' && this.vercelGoogle) {
+      return this.vercelGoogle(config.solutionModel || 'gemini-1.5-flash-latest')
+    } else if (config.apiProvider === 'groq' && this.vercelGroq) {
+      return this.vercelGroq(config.solutionModel || 'groq-1.5-flash-latest')
+    }
+    return null
+  }
+
+  private getDebuggingLLMProvider(): LanguageModel | null {
+    const config = configManager.loadConfig()
+    if (config.apiProvider === 'openai' && this.vercelOpenAI) {
+      return this.vercelOpenAI(config.debuggingModel || 'gpt-4o')
+    } else if (config.apiProvider === 'gemini' && this.vercelGoogle) {
+      return this.vercelGoogle(config.debuggingModel || 'gemini-1.5-flash-latest') // Ensure this model supports vision
+    } else if (config.apiProvider === 'groq' && this.vercelGroq) {
+      return this.vercelGroq(config.debuggingModel || 'groq-1.5-flash-latest')
+    }
+    return null
   }
 
   private async waitForInitialization(mainWindow: BrowserWindow): Promise<void> {
@@ -90,60 +151,47 @@ export class ProcessingManager {
       const isInitialized = await mainWindow.webContents.executeJavaScript(
         'window.__IS_INITIALIZED__'
       )
-
-      if (isInitialized) {
-        return
-      }
-
+      if (isInitialized) return
       await new Promise((resolve) => setTimeout(resolve, 100))
       attempts++
     }
+    // Consider throwing an error or logging if not initialized after max attempts
   }
 
   private async getLanguage(): Promise<string> {
     try {
       const config = configManager.loadConfig()
-      if (config.language) {
-        return config.language
-      }
+      if (config.language) return config.language
 
       const mainWindow = this.deps.getMainWindow()
       if (mainWindow) {
         try {
           await this.waitForInitialization(mainWindow)
           const language = await mainWindow.webContents.executeJavaScript('window.__LANGUAGE__')
-          if (typeof language === 'string' && language !== undefined && language !== null) {
-            return language
-          }
+          if (typeof language === 'string' && language.trim() !== '') return language
         } catch (error) {
           console.error('Error getting language from main window:', error)
         }
       }
-
-      return 'python'
+      return 'python' // Default language
     } catch (error) {
       console.error('Error getting language:', error)
+      return 'python'
     }
-    return 'python'
   }
 
   public async processScreenshots(): Promise<void> {
     const mainWindow = this.deps.getMainWindow()
     if (!mainWindow) return
 
-    const config = configManager.loadConfig()
+    // const config = configManager.loadConfig()
+    const llmProvider = this.getActiveLLMProvider()
 
-    if (config.apiProvider === 'openai' && !this.openaiClient) {
-      this.initializeAiClient()
-      if (!this.openaiClient) {
-        console.error('Failed to initialize OpenAI client')
-        mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.API_KEY_INVALID)
-        return
-      }
-    } else if (config.apiProvider === 'gemini' && !this.geminiClient) {
-      this.initializeAiClient()
-      if (!this.geminiClient) {
-        console.error('Failed to initialize Gemini client')
+    if (!llmProvider) {
+      this.initializeAiClient() // Attempt to re-initialize
+      if (!this.getActiveLLMProvider()) {
+        // Check again
+        console.error('Failed to initialize AI provider.')
         mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.API_KEY_INVALID)
         return
       }
@@ -153,10 +201,10 @@ export class ProcessingManager {
 
     if (view === 'queue') {
       mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.INITIAL_START)
-      const screenshotQueue = this.screenshotManager?.getScreenshotQueue()
+      const screenshotQueue = this.screenshotManager?.getScreenshotQueue() || []
       console.log('screenshotQueue', screenshotQueue)
 
-      if (!screenshotQueue || screenshotQueue.length === 0) {
+      if (screenshotQueue.length === 0) {
         console.log('No screenshots to process')
         mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.NO_SCREENSHOTS)
         return
@@ -166,19 +214,19 @@ export class ProcessingManager {
       if (existingScreenshots.length === 0) {
         console.log('No existing screenshots to process')
         mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.NO_SCREENSHOTS)
+        this.screenshotManager?.clearExtraScreenshotQueue() // Clear invalid paths
         return
       }
 
       try {
         this.currentProcessingAbortController = new AbortController()
 
-        const screenshots = await Promise.all(
+        const screenshotsData = await Promise.all(
           existingScreenshots.map(async (path) => {
             try {
               return {
                 path,
-                preview: await this.screenshotManager?.getImagePreview(path),
-                data: fs.readFileSync(path).toString('base64')
+                data: fs.readFileSync(path) // Read as Buffer for Vercel AI SDK
               }
             } catch (error) {
               console.error('Error reading screenshot:', error)
@@ -187,14 +235,18 @@ export class ProcessingManager {
           })
         )
 
-        const validScreenshots = screenshots.filter(Boolean)
+        const validScreenshots = screenshotsData.filter(Boolean) as Array<{
+          path: string
+          data: Buffer
+        }>
 
-        if (!validScreenshots || validScreenshots.length === 0) {
+        if (validScreenshots.length === 0) {
           throw new Error('No valid screenshots to process')
         }
 
         const result = await this.processScreenshotHelper(
-          validScreenshots as Array<{ path: string; data: string }>
+          validScreenshots,
+          this.currentProcessingAbortController.signal
         )
 
         if (!result.success) {
@@ -203,33 +255,36 @@ export class ProcessingManager {
             this.deps.PROCESSING_EVENTS.INITIAL_SOLUTION_ERROR,
             result.error
           )
-
-          console.log('Resetting view to queue due to error')
           this.deps.setView('queue')
           return
         }
         console.log('Processing successful:', result.data)
-        mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.SOLUTION_SUCCESS, result.data)
+        // This send is now handled inside processScreenshotHelper's call to generateSolutionsHelper
+        // mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.SOLUTION_SUCCESS, result.data)
         this.deps.setView('solutions')
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error processing screenshots:', error)
-        mainWindow.webContents.send(
-          this.deps.PROCESSING_EVENTS.INITIAL_SOLUTION_ERROR,
-          error instanceof Error ? error.message : 'Unknown error'
-        )
-
-        console.log('Resetting view to queue due to error')
+        if (error instanceof Error && error.name === 'AbortError') {
+          console.log('Screenshot processing aborted.')
+          mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.NO_SCREENSHOTS) // Or a specific ABORTED event
+        } else {
+          mainWindow.webContents.send(
+            this.deps.PROCESSING_EVENTS.INITIAL_SOLUTION_ERROR,
+            error.message || 'Unknown error'
+          )
+        }
         this.deps.setView('queue')
       } finally {
         this.currentProcessingAbortController = null
       }
     } else {
-      const extraScreenshotQueue = this.screenshotManager?.getExtraScreenshotQueue()
+      // view is 'solutions' or 'debug', processing extra screenshots
+      const extraScreenshotQueue = this.screenshotManager?.getExtraScreenshotQueue() || []
       console.log('extraScreenshotQueue', extraScreenshotQueue)
 
-      if (!extraScreenshotQueue || extraScreenshotQueue.length === 0) {
+      if (extraScreenshotQueue.length === 0) {
         console.log('No extra screenshots to process')
-        mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.NO_SCREENSHOTS)
+        mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.NO_SCREENSHOTS) // Might need a more specific event
         return
       }
 
@@ -237,31 +292,26 @@ export class ProcessingManager {
       if (existingExtraScreenshots.length === 0) {
         console.log('No existing extra screenshots to process')
         mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.NO_SCREENSHOTS)
+        this.screenshotManager?.clearExtraScreenshotQueue() // Clear invalid paths
         return
       }
 
       mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.DEBUG_START)
-
       this.currentExtraProcessingAbortController = new AbortController()
 
       try {
         const allPaths = [
           ...(this.screenshotManager?.getScreenshotQueue() || []),
           ...existingExtraScreenshots
-        ]
+        ].filter(fs.existsSync) // Ensure all paths are valid before mapping
 
-        const screenshots = await Promise.all(
-          allPaths.map(async (path) => {
+        const screenshotsData = await Promise.all(
+          // Deduplicate paths before processing
+          [...new Set(allPaths)].map(async (path) => {
             try {
-              if (!fs.existsSync(path)) {
-                console.warn(`Screenshot not found: ${path}`)
-                return null
-              }
-
               return {
                 path,
-                preview: await this.screenshotManager?.getImagePreview(path),
-                data: fs.readFileSync(path).toString('base64')
+                data: fs.readFileSync(path) // Read as Buffer
               }
             } catch (error) {
               console.error('Error reading screenshot:', error)
@@ -270,19 +320,23 @@ export class ProcessingManager {
           })
         )
 
-        const validScreenshots = screenshots.filter(Boolean)
+        const validScreenshots = screenshotsData.filter(Boolean) as Array<{
+          path: string
+          data: Buffer
+        }>
 
-        if (!validScreenshots || validScreenshots.length === 0) {
-          throw new Error('No valid screenshots to process')
+        if (validScreenshots.length === 0) {
+          throw new Error('No valid screenshots to process for debug')
         }
 
         console.log(
           'Combined screenshots for processing',
-          validScreenshots.map((s) => s?.path)
+          validScreenshots.map((s) => s.path)
         )
 
         const result = await this.processExtraScreenshotsHelper(
-          validScreenshots as Array<{ path: string; data: string }>
+          validScreenshots,
+          this.currentExtraProcessingAbortController.signal
         )
 
         if (result.success) {
@@ -291,613 +345,394 @@ export class ProcessingManager {
         } else {
           mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.DEBUG_ERROR, result.error)
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error processing extra screenshots:', error)
-        mainWindow.webContents.send(
-          this.deps.PROCESSING_EVENTS.DEBUG_ERROR,
-          error instanceof Error ? error.message : 'Unknown error'
-        )
+        if (error.name === 'AbortError') {
+          console.log('Extra screenshot processing aborted.')
+          // Potentially send a specific event or revert view
+        } else {
+          mainWindow.webContents.send(
+            this.deps.PROCESSING_EVENTS.DEBUG_ERROR,
+            error.message || 'Unknown error'
+          )
+        }
       } finally {
         this.currentExtraProcessingAbortController = null
       }
     }
   }
 
-  private async processScreenshotHelper(screenshots: Array<{ path: string; data: string }>) {
+  private async processScreenshotHelper(
+    screenshots: Array<{ path: string; data: Buffer }>,
+    abortSignal?: AbortSignal
+  ) {
+    const mainWindow = this.deps.getMainWindow()
+    if (!mainWindow) return { success: false, error: 'Main window not available' }
+
+    const llmProvider = this.getActiveLLMProvider()
+    if (!llmProvider) {
+      return { success: false, error: 'AI Provider not initialized' }
+    }
+
     try {
-      const config = configManager.loadConfig()
       const language = await this.getLanguage()
-      const mainWindow = this.deps.getMainWindow()
 
-      const imageDataList = screenshots.map((screenshot) => screenshot.data)
+      mainWindow.webContents.send('processing-status', {
+        message: 'Analyzing problem from screenshot...',
+        progress: 20
+      })
 
-      if (mainWindow) {
-        mainWindow.webContents.send('processing-status', {
-          message: 'Analyzing problem from screenshot...',
-          progress: 20
-        })
-      }
+      const userMessagesContent: CoreMessage['content'] = [
+        {
+          type: 'text',
+          text: `Extract the coding problem details from these screenshots. Return in JSON format adhering to the provided schema. Preferred coding language we gonna use for this problem is ${language}.`
+        },
+        ...screenshots.map((screenshot) => ({
+          type: 'image' as const,
+          image: screenshot.data, // Pass Buffer directly
+          mimeType: 'image/png' // Or 'image/jpeg' - adjust if necessary
+        }))
+      ]
 
-      let problemInfo
-
-      if (config.apiProvider === 'openai') {
-        if (!this.openaiClient) {
-          this.initializeAiClient()
-
-          if (!this.openaiClient) {
-            return {
-              success: false,
-              error: 'Failed to initialize OpenAI client'
-            }
-          }
-        }
-
-        const messages = [
+      const { object: problemInfo, usage } = await generateObject({
+        model: llmProvider,
+        schema: problemInfoSchema,
+        messages: [
           {
-            role: 'system' as const,
-            content: `You are a coding challenge interpreter. Analyze the screenshot of the coding problem and extract all relevant information. Return the information in JSON format with these fields: problem_statement, constraints, example_input, example_output. Just return the structured JSON without any other text.`
+            role: 'system',
+            content: `You are a coding challenge interpreter. Analyze the screenshot of the coding problem and extract all relevant information. Return the information in JSON format matching the Zod schema fields: problem_statement, constraints, example_input, example_output. Just return the structured JSON without any other text.`
           },
-          {
-            role: 'user' as const,
-            content: [
-              {
-                type: 'text' as const,
-                text: `Extract the coding problem details from these screenshots. Return in JSON format. Preferred coding language we gonna use for this problem is ${language}.`
-              },
-              ...imageDataList.map((data) => ({
-                type: 'image_url' as const,
-                image_url: {
-                  url: `data:image/jpeg;base64,${data}`
-                }
-              }))
-            ]
-          }
-        ]
+          { role: 'user', content: userMessagesContent }
+        ],
+        temperature: 0.2,
+        maxTokens: llmProvider.provider == 'openai' ? 4000 : 6000, // Vercel SDK might have different defaults or ways to set this
+        mode: 'json', // Enforce JSON output mode if supported by the model/provider
+        abortSignal
+      })
+      console.log('LLM Usage (Problem Extraction):', usage)
 
-        const extractionResponse = await this.openaiClient.chat.completions.create({
-          model: config.extractionModel || 'gpt-4o',
-          messages,
-          max_tokens: 4000,
-          temperature: 0.2
-        })
-
-        try {
-          const responseText = extractionResponse.choices[0].message.content
-          if (responseText === null) {
-            throw new Error('No response from OpenAI')
-          }
-
-          const jsonText = responseText.replace(/```json|```/g, '').trim()
-          problemInfo = JSON.parse(jsonText)
-        } catch (error) {
-          console.error('Error parsing OpenAI response:', error)
-          return {
-            success: false,
-            error: 'Failed to parse OpenAI response'
-          }
-        }
-      } else if (config.apiProvider === 'gemini') {
-        if (!this.geminiClient) {
-          this.initializeAiClient()
-
-          if (!this.geminiClient) {
-            return {
-              success: false,
-              error: 'Failed to initialize Gemini client'
-            }
-          }
-        }
-
-        try {
-          const geminiParts = [
-            {
-              text: `Extract the coding problem details from these screenshots. Return in JSON format. Preferred coding language we gonna use for this problem is ${language}.`
-            },
-            ...imageDataList.map((data) => ({
-              inlineData: {
-                mimeType: 'image/png',
-                data: data
-              }
-            }))
-          ]
-
-          const model = this.geminiClient.getGenerativeModel({
-            model: config.extractionModel || 'gemini-2.0-flash'
-          })
-
-          const result = await model.generateContent({
-            contents: [
-              {
-                role: 'user',
-                parts: geminiParts
-              }
-            ],
-            generationConfig: {
-              temperature: 0.2
-            },
-            systemInstruction: `You are a coding challenge interpreter. Analyze the screenshot of the coding problem and extract all relevant information. Return the information in JSON format with these fields: problem_statement, constraints, example_input, example_output. Just return the structured JSON without any other text.`
-          })
-
-          const response = await result.response
-          if (!response) {
-            throw new Error('No response from Gemini')
-          }
-
-          const responseText = response.text()
-          console.log('responseText', responseText)
-          if (!responseText) {
-            throw new Error('No response from Gemini')
-          }
-
-          const jsonText = responseText.replace(/```json|```/g, '').trim()
-          problemInfo = JSON.parse(jsonText)
-        } catch (error) {
-          console.error('Error parsing Gemini response:', error)
-          return {
-            success: false,
-            error: 'Failed to parse Gemini response'
-          }
-        }
+      if (!problemInfo || Object.keys(problemInfo).length === 0) {
+        throw new Error('Failed to extract problem information or received empty data.')
       }
 
-      if (mainWindow) {
-        mainWindow.webContents.send('processing-status', {
-          message: 'Problem analyzed successfully. Preparing to generate solution...',
-          progress: 40
-        })
-      }
+      mainWindow.webContents.send('processing-status', {
+        message: 'Problem analyzed successfully. Preparing to generate solution...',
+        progress: 40
+      })
 
       this.deps.setProblemInfo(problemInfo)
+      mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.PROBLEM_EXTRACTED, problemInfo)
 
-      if (mainWindow) {
-        mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.PROBLEM_EXTRACTED, problemInfo)
+      const solutionsResponse = await this.generateSolutionsHelper(abortSignal)
+      if (solutionsResponse.success) {
+        this.screenshotManager?.clearExtraScreenshotQueue() // Clear if any were pending from a previous run
 
-        const solutionsResponse = await this.generateSolutionsHelper()
-        if (solutionsResponse.success) {
-          this.screenshotManager?.clearExtraScreenshotQueue()
-
-          mainWindow.webContents.send('processing-status', {
-            progress: 100,
-            message: 'Solution generated successfully. Displaying results...'
-          })
-
-          mainWindow.webContents.send(
-            this.deps.PROCESSING_EVENTS.SOLUTION_SUCCESS,
-            solutionsResponse.data
-          )
-
-          return {
-            success: true,
-            data: solutionsResponse.data
-          }
-        } else {
-          throw new Error('Failed to generate solutions')
-        }
+        mainWindow.webContents.send('processing-status', {
+          progress: 100,
+          message: 'Solution generated successfully. Displaying results...'
+        })
+        // SOLUTION_SUCCESS is sent from generateSolutionsHelper upon its own success
+        return { success: true, data: solutionsResponse.data }
+      } else {
+        throw new Error(solutionsResponse.error || 'Failed to generate solutions')
       }
-
-      return { success: false, error: 'Failed to process screenshot' }
-    } catch (error) {
-      console.error('Error processing screenshot:', error)
+    } catch (error: any) {
+      console.error('Error in processScreenshotHelper:', error)
+      if (error.name === 'AbortError') {
+        return { success: false, error: 'Processing aborted by user.' }
+      }
       return {
         success: false,
-        error: 'Failed to process screenshot'
+        error: error.message || 'Failed to process screenshot with Vercel AI SDK'
       }
     }
   }
 
-  private async generateSolutionsHelper() {
+  private async generateSolutionsHelper(abortSignal?: AbortSignal) {
+    const mainWindow = this.deps.getMainWindow()
+    if (!mainWindow) return { success: false, error: 'Main window not available' }
+
+    const solutionLLMProvider = this.getSolutionLLMProvider()
+    if (!solutionLLMProvider) {
+      return { success: false, error: 'Solution AI Provider not initialized' }
+    }
+
     try {
-      const problemInfo = this.deps.getProblemInfo()
+      const problemInfo: ProblemInfo = this.deps.getProblemInfo()
+      if (!problemInfo) throw new Error('No problem info found')
+
       const language = await this.getLanguage()
-      const config = configManager.loadConfig()
 
-      const mainWindow = this.deps.getMainWindow()
-
-      if (!problemInfo) {
-        throw new Error('No problem info found')
-      }
-
-      if (mainWindow) {
-        mainWindow.webContents.send('processing-status', {
-          message: 'Creating optimal solution with detailed explanation...',
-          progress: 60
-        })
-      }
+      mainWindow.webContents.send('processing-status', {
+        message: 'Creating optimal solution with detailed explanation...',
+        progress: 60
+      })
 
       const promptText = `
- Generate a detailed solution for the following coding problem:
+Generate a detailed solution for the following coding problem:
 
- PROBLEM STATEMENT:
- ${problemInfo.problem_statement}
+PROBLEM STATEMENT:
+${problemInfo.problem_statement}
 
- CONSTRAINTS:
- ${problemInfo.constraints || 'No specific constraints provided.'}
+CONSTRAINTS:
+${problemInfo.constraints || 'No specific constraints provided.'}
 
- EXAMPLE INPUT:
- ${problemInfo.example_input || 'No example input provided.'}
+EXAMPLE INPUT:
+${problemInfo.example_input || 'No example input provided.'}
 
- EXAMPLE OUTPUT:
- ${problemInfo.example_output || 'No example output provided.'}
+EXAMPLE OUTPUT:
+${problemInfo.example_output || 'No example output provided.'}
 
- LANGUAGE: ${language}
+LANGUAGE: ${language}
 
- I need the response in the following format:
- 1. Code: A clean, optimized implementation in ${language}
- 2. Your Thoughts: A list of key insights and reasoning behind your approach
- 3. Time complexity: O(X) with a detailed explanation (at least 2 sentences)
- 4. Space complexity: O(X) with a detailed explanation (at least 2 sentences)
+I need the response in the following format:
+1. Code: A clean, optimized implementation in ${language} (use markdown code block with language specifier)
+2. Your Thoughts: A list of key insights and reasoning behind your approach (bullet points)
+3. Time complexity: O(X) with a detailed explanation (at least 2 sentences)
+4. Space complexity: O(X) with a detailed explanation (at least 2 sentences)
 
- For complexity explanations, please be thorough. For example: "Time complexity: O(n) because we iterate through the array only once. This is optimal as we need to examine each element at least once to find the solution." or "Space complexity: O(n) because in the worst case, we store all elements in the hashmap. The additional space scales linearly with the input size."
+For complexity explanations, please be thorough. For example: "Time complexity: O(n) because we iterate through the array only once. This is optimal as we need to examine each element at least once to find the solution." or "Space complexity: O(n) because in the worst case, we store all elements in the hashmap. The additional space scales linearly with the input size."
 
- Your solution should be efficient, well-commented, and handle edge cases.
- `
+Your solution should be efficient, well-commented, and handle edge cases.
+`
+      const { text: responseContent, usage } = await generateText({
+        model: solutionLLMProvider,
+        messages: [
+          {
+            role: 'system',
+            content: `You are an expert coding interview assistant. Provide clear, optimal solutions with detailed explanations in the requested format.`
+          },
+          { role: 'user', content: promptText }
+        ],
+        temperature: 0.2,
+        maxTokens: 4000,
+        abortSignal
+      })
+      console.log('LLM Usage (Solution Generation):', usage)
 
-      let responseContent
-
-      if (config.apiProvider === 'openai') {
-        if (!this.openaiClient) {
-          return {
-            success: false,
-            error: 'Failed to initialize OpenAI client'
-          }
-        }
-
-        const solutionResponse = await this.openaiClient.chat.completions.create({
-          model: config.solutionModel || 'gpt-4o',
-          messages: [
-            {
-              role: 'system',
-              content: `You are an expert coding interview assistant. Provide clear, optimal solutions with detailed explanations.`
-            },
-            {
-              role: 'user',
-              content: promptText
-            }
-          ],
-          max_tokens: 4000,
-          temperature: 0.2
-        })
-
-        responseContent = solutionResponse.choices[0].message.content
-      } else if (config.apiProvider === 'gemini') {
-        if (!this.geminiClient) {
-          return {
-            success: false,
-            error: 'Failed to initialize Gemini client'
-          }
-        }
-
-        const model = this.geminiClient.getGenerativeModel({
-          model: config.solutionModel || 'gemini-1.5-flash'
-        })
-
-        const result = await model.generateContent({
-          contents: [
-            {
-              role: 'user',
-              parts: [
-                {
-                  text: promptText
-                }
-              ]
-            }
-          ],
-          generationConfig: {
-            temperature: 0.2
-          }
-        })
-
-        responseContent = result.response.text()
-        console.log('responseContent', responseContent)
+      if (!responseContent) {
+        throw new Error('No content received from AI for solution generation.')
       }
 
+      // Parsing logic (remains largely the same, ensure regex robustness)
       const codeMatch = responseContent.match(/```(?:\w+)?\s*([\s\S]*?)```/)
-      const code = codeMatch ? codeMatch[1].trim() : responseContent
+      const code = codeMatch ? codeMatch[1].trim() : '// Code not found or parsing failed'
 
       const thoughtsRegex =
-        /(?:Thoughts:|Key Insights:|Reasoning:|Approach:)([\s\S]*?)(?:Time complexity:|$)/i
+        /(?:Your Thoughts:|Thoughts:|Key Insights:|Reasoning:|Approach:)\s*([\s\S]*?)(?=\n(?:Time complexity:|Space complexity:|$))/i
       const thoughtsMatch = responseContent.match(thoughtsRegex)
       let thoughts: string[] = []
-
       if (thoughtsMatch && thoughtsMatch[1]) {
-        const bulletPoints = thoughtsMatch[1].match(/(?:^|\n)\s*(?:[-*•]|\d+\.)\s*(.*)/g)
-        if (bulletPoints) {
-          thoughts = bulletPoints
-            .map((point) => point.replace(/^\s*(?:[-*•]|\d+\.)\s*/, '').trim())
-            .filter(Boolean)
-        } else {
-          thoughts = thoughtsMatch[1]
-            .split('\n')
-            .map((line) => line.trim())
-            .filter(Boolean)
-        }
+        thoughts = thoughtsMatch[1]
+          .split('\n')
+          .map((line) => line.replace(/^[-*•\d.]*\s*/, '').trim())
+          .filter(Boolean)
       }
+      if (thoughts.length === 0)
+        thoughts = ['Solution approach based on efficiency and readability.']
 
       const timeComplexityPattern =
         /Time complexity:?\s*([^\n]+(?:\n[^\n]+)*?)(?=\n\s*(?:Space complexity|$))/i
       const spaceComplexityPattern =
-        /Space complexity:?\s*([^\n]+(?:\n[^\n]+)*?)(?=\n\s*(?:[A-Z]|$))/i
+        /Space complexity:?\s*([^\n]+(?:\n[^\n]+)*?)(?=\n\s*(?:[A-Z][a-z]*\s*)*$|\n\s*$)/i // Improved end lookahead
 
-      let timeComplexity =
-        'O(n) - Linear time complexity because we only iterate through the array once. Each element is processed exactly one time, and the hashmap lookups are O(1) operations.'
-      let spaceComplexity =
-        'O(n) - Linear space complexity because we store elements in the hashmap. In the worst case, we might need to store all elements before finding the solution pair.'
-
+      let timeComplexity = 'O(N) - Default: please verify. Iterates through input once.'
       const timeMatch = responseContent.match(timeComplexityPattern)
-      if (timeMatch && timeMatch[1]) {
-        timeComplexity = timeMatch[1].trim()
-        if (!timeComplexity.match(/O\([^)]+\)/i)) {
-          timeComplexity = `O(n) - ${timeComplexity}`
-        } else if (!timeComplexity.includes('-') && !timeComplexity.includes('because')) {
-          const notationMatch = timeComplexity.match(/O\([^)]+\)/i)
-          if (notationMatch) {
-            const notation = notationMatch[0]
-            const rest = timeComplexity.replace(notation, '').trim()
-            timeComplexity = `${notation} - ${rest}`
-          }
-        }
-      }
+      if (timeMatch && timeMatch[1]) timeComplexity = timeMatch[1].trim()
 
+      let spaceComplexity =
+        'O(N) - Default: please verify. Uses auxiliary space proportional to input.'
       const spaceMatch = responseContent.match(spaceComplexityPattern)
-      if (spaceMatch && spaceMatch[1]) {
-        spaceComplexity = spaceMatch[1].trim()
-        if (!spaceComplexity.match(/O\([^)]+\)/i)) {
-          spaceComplexity = `O(n) - ${spaceComplexity}`
-        } else if (!spaceComplexity.includes('-') && !spaceComplexity.includes('because')) {
-          const notationMatch = spaceComplexity.match(/O\([^)]+\)/i)
-          if (notationMatch) {
-            const notation = notationMatch[0]
-            const rest = spaceComplexity.replace(notation, '').trim()
-            spaceComplexity = `${notation} - ${rest}`
-          }
-        }
-      }
+      if (spaceMatch && spaceMatch[1]) spaceComplexity = spaceMatch[1].trim()
 
       const formattedResponse = {
-        code: code,
-        thoughts:
-          thoughts.length > 0
-            ? thoughts
-            : ['Solution approach based on efficiency and readability.'],
+        code,
+        thoughts,
         time_complexity: timeComplexity,
         space_complexity: spaceComplexity
       }
 
-      return {
-        success: true,
-        data: formattedResponse
+      mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.SOLUTION_SUCCESS, formattedResponse)
+      return { success: true, data: formattedResponse }
+    } catch (error: any) {
+      console.error('Error generating solutions with Vercel AI SDK:', error)
+      if (error.name === 'AbortError') {
+        return { success: false, error: 'Solution generation aborted by user.' }
       }
-    } catch (error) {
-      console.error('Error generating solutions:', error)
-      return {
-        success: false,
-        error: 'Failed to generate solutions'
-      }
+      mainWindow.webContents.send(
+        this.deps.PROCESSING_EVENTS.INITIAL_SOLUTION_ERROR,
+        error.message || 'Failed to generate solutions'
+      )
+      return { success: false, error: error.message || 'Failed to generate solutions' }
     }
   }
 
   public cancelOngoingRequest(): void {
     let wasCancelled = false
-
     if (this.currentProcessingAbortController) {
       this.currentProcessingAbortController.abort()
       this.currentProcessingAbortController = null
       wasCancelled = true
+      console.log('Main processing request cancelled.')
     }
-
     if (this.currentExtraProcessingAbortController) {
       this.currentExtraProcessingAbortController.abort()
       this.currentExtraProcessingAbortController = null
       wasCancelled = true
+      console.log('Extra processing (debug) request cancelled.')
     }
 
+    // Reset states
     this.deps.setHasDebugged(false)
-    this.deps.setProblemInfo(null)
+    // this.deps.setProblemInfo(null) // Keep problem info if initial solution was generated
 
     const mainWindow = this.deps.getMainWindow()
     if (wasCancelled && mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.NO_SCREENSHOTS)
+      // Send a general cancellation/reset event or specific based on current view
+      mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.NO_SCREENSHOTS) // Or a new CANCELLED event
+      mainWindow.webContents.send('processing-status', {
+        progress: 0,
+        message: 'Processing cancelled.'
+      })
     }
   }
 
-  private async processExtraScreenshotsHelper(screenshots: Array<{ path: string; data: string }>) {
+  private async processExtraScreenshotsHelper(
+    screenshots: Array<{ path: string; data: Buffer }>,
+    abortSignal?: AbortSignal
+  ) {
+    const mainWindow = this.deps.getMainWindow()
+    if (!mainWindow) return { success: false, error: 'Main window not available' }
+
+    const debuggingLLMProvider = this.getDebuggingLLMProvider()
+    if (!debuggingLLMProvider) {
+      return { success: false, error: 'Debugging AI Provider not initialized' }
+    }
+
     try {
-      const config = configManager.loadConfig()
       const language = await this.getLanguage()
-      const problemInfo = this.deps.getProblemInfo()
-      const mainWindow = this.deps.getMainWindow()
+      const problemInfo: ProblemInfo | null = this.deps.getProblemInfo()
 
       if (!problemInfo) {
-        throw new Error('No problem info found')
+        // If no problemInfo, perhaps we can ask the LLM to infer it or just focus on the code in screenshots
+        console.warn('No problem info found for debugging. Proceeding with screenshots only.')
+        // return { success: false, error: 'No problem info found for debugging context.' }
       }
 
-      if (mainWindow) {
-        mainWindow.webContents.send('processing-status', {
-          message: 'Processing debug screenshots...',
-          progress: 30
-        })
-      }
+      mainWindow.webContents.send('processing-status', {
+        message: 'Processing debug screenshots...',
+        progress: 30
+      })
 
-      const imageDataList = screenshots.map((screenshot) => screenshot.data)
+      const userMessagesContent: CoreMessage['content'] = [
+        {
+          type: 'text',
+          text: `I'm trying to solve a coding problem${problemInfo ? `: "${problemInfo.problem_statement}"` : ''} in ${language}. I need help with debugging or improving my solution. Here are screenshots of my code, any errors, or test cases. Please provide a detailed analysis with:
+          1. What issues you found (potential bugs, logical errors).
+          2. Specific improvements and corrections (code snippets if applicable).
+          3. Any optimizations that would make the solution better.
+          4. A clear explanation of the changes needed.
+          5. Key takeaways or learning points.
 
-      let debugContent
+          Structure your response clearly with markdown. Use ### for main section headers (e.g., ### Issues Identified).`
+        },
+        ...screenshots.map((screenshot) => ({
+          type: 'image' as const,
+          image: screenshot.data, // Pass Buffer
+          mimeType: 'image/png' // or 'image/jpeg'
+        }))
+      ]
 
-      if (config.apiProvider === 'openai') {
-        if (!this.openaiClient) {
-          return {
-            success: false,
-            error: 'Failed to initialize OpenAI client'
-          }
-        }
+      mainWindow.webContents.send('processing-status', {
+        message: 'Analyzing debug screenshots with AI...',
+        progress: 60
+      })
 
-        const messages = [
+      const { text: debugContent, usage } = await generateText({
+        model: debuggingLLMProvider,
+        messages: [
           {
-            role: 'system' as const,
-            content: `You are a coding interview assistant helping debug and improve solutions. Analyze these screenshots which include either error messages, incorrect outputs, or test cases, and provide detailed debugging help.
-
-            Your response MUST follow this exact structure with these section headers (use ### for headers):
+            role: 'system',
+            content: `You are a coding interview assistant helping debug and improve solutions. Analyze the provided screenshots (which might include code, error messages, incorrect outputs, or test cases) and provide detailed debugging help.
+            Your response MUST follow this general structure with markdown section headers (use ### for headers):
             ### Issues Identified
             - List each issue as a bullet point with clear explanation
 
             ### Specific Improvements and Corrections
-            - List specific code changes needed as bullet points
+            - List specific code changes needed as bullet points. Use markdown code blocks for code.
 
-            ### Optimizations
+            ### Optimizations (Optional)
             - List any performance optimizations if applicable
 
-            ### Explanation of Changes Needed
-            Here provide a clear explanation of why the changes are needed
+            ### Explanation of Changes
+            - Provide a clear explanation of why the changes are needed
 
-            ### Key Points
-            - Summary bullet points of the most important takeaways
-
-            If you include code examples, use proper markdown code blocks with language specification (e.g. \`\`\`java).`
+            ### Key Points / Takeaways
+            - Summary bullet points of the most important takeaways`
           },
-          {
-            role: 'user' as const,
-            content: [
-              {
-                type: 'text' as const,
-                text: `I'm solving this coding problem: "${problemInfo.problem_statement}" in ${language}. I need help with debugging or improving my solution. Here are screenshots of my code, the errors or test cases. Please provide a detailed analysis with:
-                1. What issues you found in my code
-                2. Specific improvements and corrections
-                3. Any optimizations that would make the solution better
-                4. A clear explanation of the changes needed`
-              },
-              ...imageDataList.map((data) => ({
-                type: 'image_url' as const,
-                image_url: {
-                  url: `data:image/jpeg;base64,${data}`
-                }
-              }))
-            ]
-          }
-        ]
+          { role: 'user', content: userMessagesContent }
+        ],
+        temperature: 0.2,
+        maxTokens: 4000,
+        abortSignal
+      })
+      console.log('LLM Usage (Debugging):', usage)
 
-        if (mainWindow) {
-          mainWindow.webContents.send('processing-status', {
-            message: 'Analyzing debug screenshots...',
-            progress: 60
-          })
-        }
-
-        const debugResponse = await this.openaiClient.chat.completions.create({
-          model: config.debuggingModel || 'gpt-4o',
-          messages,
-          max_tokens: 4000,
-          temperature: 0.2
-        })
-
-        debugContent = debugResponse.choices[0].message.content
-      } else if (config.apiProvider === 'gemini') {
-        if (!this.geminiClient) {
-          return {
-            success: false,
-            error: 'Failed to initialize Gemini client'
-          }
-        }
-
-        const model = this.geminiClient.getGenerativeModel({
-          model: config.debuggingModel || 'gemini-2.0-flash'
-        })
-
-        const debugPrompt = `
- You are a coding interview assistant helping debug and improve solutions. Analyze these screenshots which include either error messages, incorrect outputs, or test cases, and provide detailed debugging help.
-
- I'm solving this coding problem: "${problemInfo.problem_statement}" in ${language}. I need help with debugging or improving my solution.
-
- YOUR RESPONSE MUST FOLLOW THIS EXACT STRUCTURE WITH THESE SECTION HEADERS:
- ### Issues Identified
- - List each issue as a bullet point with clear explanation
-
- ### Specific Improvements and Corrections
- - List specific code changes needed as bullet points
-
- ### Optimizations
- - List any performance optimizations if applicable
-
- ### Explanation of Changes Needed
- Here provide a clear explanation of why the changes are needed
-
- ### Key Points
- - Summary bullet points of the most important takeaways
-
- If you include code examples, use proper markdown code blocks with language specification (e.g. \`\`\`java).`
-
-        const solutionResponse = await model.generateContent({
-          contents: [
-            {
-              role: 'user',
-              parts: [
-                {
-                  text: debugPrompt
-                }
-              ]
-            }
-          ],
-          generationConfig: {
-            temperature: 0.2
-          }
-        })
-
-        if (mainWindow) {
-          mainWindow.webContents.send('processing-status', {
-            message: 'Analyzing debug screenshots...',
-            progress: 60
-          })
-        }
-
-        debugContent = solutionResponse.response.text()
+      if (!debugContent) {
+        throw new Error('No content received from AI for debug analysis.')
       }
 
-      if (mainWindow) {
-        mainWindow.webContents.send('processing-status', {
-          message: 'Debug analysis complete',
-          progress: 100
-        })
-      }
+      mainWindow.webContents.send('processing-status', {
+        message: 'Debug analysis complete',
+        progress: 100
+      })
 
-      let extractedCode = '// Debug mode - see analysis below'
-      const codeMatch = debugContent.match(/```(?:[a-zA-Z]+)?([\s\S]*?)```/)
+      // Basic parsing for code and thoughts, actual content is markdown
+      let extractedCode = '// Debug analysis provided in markdown format below.'
+      const codeMatch = debugContent.match(/```(?:[a-zA-Z]+)?\s*([\s\S]*?)```/) // First code block
       if (codeMatch && codeMatch[1]) {
         extractedCode = codeMatch[1].trim()
       }
 
-      let formattedDebugContent = debugContent
-
-      if (!debugContent.includes('# ') && !debugContent.includes('## ')) {
-        formattedDebugContent = debugContent
-          .replace(/issues identified|problems found|bugs found/i, '## Issues Identified')
-          .replace(/code improvements|improvements|suggested changes/i, '## Code Improvements')
-          .replace(/optimizations|performance improvements/i, '## Optimizations')
-          .replace(/explanation|detailed analysis/i, '## Explanation')
+      // Extract some bullet points for 'thoughts' (e.g., from "Issues Identified" or "Key Points")
+      let thoughts: string[] = []
+      const issuesMatch = debugContent.match(/### Issues Identified\s*([\s\S]*?)(?=\n###|$)/i)
+      if (issuesMatch && issuesMatch[1]) {
+        thoughts = issuesMatch[1]
+          .split('\n')
+          .map((line) => line.replace(/^[-*•\d.]*\s*/, '').trim())
+          .filter(Boolean)
+          .slice(0, 5)
       }
-
-      const bulletPoints = formattedDebugContent.match(/(?:^|\n)[ ]*(?:[-*•]|\d+\.)[ ]+([^\n]+)/g)
-      const thoughts = bulletPoints
-        ? bulletPoints
-            .map((point) => point.replace(/^[ ]*(?:[-*•]|\d+\.)[ ]+/, '').trim())
+      if (thoughts.length === 0) {
+        const keyPointsMatch = debugContent.match(
+          /### Key Points(?: \/ Takeaways)?\s*([\s\S]*?)(?=\n###|$)/i
+        )
+        if (keyPointsMatch && keyPointsMatch[1]) {
+          thoughts = keyPointsMatch[1]
+            .split('\n')
+            .map((line) => line.replace(/^[-*•\d.]*\s*/, '').trim())
+            .filter(Boolean)
             .slice(0, 5)
-        : ['Debug analysis based on your screenshots']
+        }
+      }
+      if (thoughts.length === 0) thoughts = ['See full debug analysis for details.']
 
       const response = {
-        code: extractedCode,
-        debug_analysis: formattedDebugContent,
+        code: extractedCode, // This might be less relevant if the analysis is textual
+        debug_analysis: debugContent, // The full markdown from the LLM
         thoughts: thoughts,
-        time_complexity: 'N/A - Debug mode',
-        space_complexity: 'N/A - Debug mode'
+        time_complexity: 'N/A - Debug Mode', // Not applicable for debug usually
+        space_complexity: 'N/A - Debug Mode'
       }
 
-      return {
-        success: true,
-        data: response
+      return { success: true, data: response }
+    } catch (error: any) {
+      console.error('Error processing extra screenshots with Vercel AI SDK:', error)
+      if (error.name === 'AbortError') {
+        return { success: false, error: 'Debug processing aborted by user.' }
       }
-    } catch (error) {
-      console.error('Error processing extra screenshots:', error)
-      return {
-        success: false,
-        error: 'Failed to process extra screenshots'
-      }
+      return { success: false, error: error.message || 'Failed to process extra screenshots' }
     }
   }
 }

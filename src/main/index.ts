@@ -18,7 +18,6 @@ export const state = {
   step: 0,
   currentX: 0,
   currentY: 0,
-
   keyboardShortcutHelper: null as KeyboardShortcutHelper | null,
   screenshotManager: null as ScreenshotManager | null,
   processingManager: null as ProcessingManager | null,
