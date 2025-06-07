@@ -1,10 +1,10 @@
 {
   "name": "cluelessly",
-  "version": "1.0.7",
-  "description": "An Electron application with React and TypeScript",
+  "version": "1.0.1",
+  "description": "A powerful desktop application that helps developers solve coding problems by analyzing screenshots of code and providing AI-powered solutions.",
   "main": "./out/main/index.js",
-  "author": "example.com",
-  "homepage": "https://electron-vite.org",
+  "author": "https://github.com/Xeven777",
+  "homepage": "https://cluelessly.netlify.app/",
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint --cache .",
@@ -26,7 +26,6 @@
     "@ai-sdk/openai": "^1.3.22",
     "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/utils": "^4.0.0",
-    "@google/generative-ai": "^0.24.1",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-toast": "^1.2.14",
     "@tailwindcss/postcss": "^4.1.8",
@@ -35,7 +34,7 @@
     "ai": "^4.3.16",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "lucide-react": "^0.488.0",
+    "lucide-react": "^0.513.0",
     "openai": "^4.104.0",
     "postcss": "^8.5.4",
     "react-markdown": "^10.1.0",
@@ -50,13 +49,13 @@
     "@electron-toolkit/eslint-config-prettier": "^3.0.0",
     "@electron-toolkit/eslint-config-ts": "^3.1.0",
     "@electron-toolkit/tsconfig": "^1.0.1",
-    "@electron/notarize": "^2.5.0",
+    "@electron/notarize": "^3.0.1",
     "@types/node": "^22.15.30",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.5.1",
-    "electron": "35.0.0",
-    "electron-builder": "^25.1.8",
+    "electron": "36.4.0",
+    "electron-builder": "^26.0.12",
     "electron-vite": "^3.1.0",
     "eslint": "^9.28.0",
     "eslint-plugin-react": "^7.37.5",
@@ -73,6 +72,5 @@
       "electron",
       "esbuild"
     ]
-  },
-  "packageManager": "pnpm@10.5.2+sha512.da9dc28cd3ff40d0592188235ab25d3202add8a207afbedc682220e4a0029ffbff4562102b9e6e46b4e3f9e8bd53e6d05de48544b0c57d4b0179e22c76d1199b"
+  }
 }
