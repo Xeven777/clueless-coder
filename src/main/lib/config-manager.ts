@@ -83,8 +83,6 @@ export class ConfigManager extends EventEmitter {
       const allowedModels = [
         'meta-llama/llama-4-scout-17b-16e-instruct',
         'meta-llama/llama-4-maverick-17b-128e-instruct',
-        'qwen-qwq-32b',
-        'deepseek-r1-distill-llama-70b',
         'llama-3.3-70b-versatile',
         'llama3-70b-8192',
         'llama3-8b-8192'

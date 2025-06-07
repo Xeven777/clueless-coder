@@ -108,16 +108,7 @@ const modelCategories: ModelCategory[] = [
         name: 'Llama 4 Maverick',
         description: 'Another capable model for solution generation'
       },
-      {
-        id: 'qwen-qwq-32b',
-        name: 'Qwen QWQ 32B',
-        description: 'A great Reasoning model for solution generation by Qwen'
-      },
-      {
-        id: 'deepseek-r1-distill-llama-70b',
-        name: 'DeepSeek R1 Distill Llama 70B',
-        description: 'A great Reasoning model for solution generation by DeepSeek'
-      },
+
       {
         id: 'llama-3.3-70b-versatile',
         name: 'Llama 3.3 70B Versatile',
@@ -175,16 +166,6 @@ const modelCategories: ModelCategory[] = [
         description: 'Another capable model for solution generation'
       },
       {
-        id: 'qwen-qwq-32b',
-        name: 'Qwen QWQ 32B',
-        description: 'A great Reasoning model for solution generation by Qwen'
-      },
-      {
-        id: 'deepseek-r1-distill-llama-70b',
-        name: 'DeepSeek R1 Distill Llama 70B',
-        description: 'A great Reasoning model for solution generation by DeepSeek'
-      },
-      {
         id: 'llama-3.3-70b-versatile',
         name: 'Llama 3.3 70B Versatile',
         description: 'Very fast model of Llama'
@@ -212,10 +193,12 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
   const [open, setOpen] = useState(openProp || false)
   console.log('open', open)
   const [apiKey, setApiKey] = useState('')
-  const [apiProvider, setApiProvider] = useState<APIProvider>('openai')
-  const [extractionModel, setExtractionModel] = useState('gpt-4o')
-  const [solutionModel, setSolutionModel] = useState('gpt-4o')
-  const [debuggingModel, setDebuggingModel] = useState('gpt-4o')
+  const [apiProvider, setApiProvider] = useState<APIProvider>('groq')
+  const [extractionModel, setExtractionModel] = useState(
+    'meta-llama/llama-4-scout-17b-16e-instruct'
+  )
+  const [solutionModel, setSolutionModel] = useState('meta-llama/llama-4-scout-17b-16e-instruct')
+  const [debuggingModel, setDebuggingModel] = useState('meta-llama/llama-4-scout-17b-16e-instruct')
   const [isLoading, setIsLoading] = useState(false)
 
   const { showToast } = useToast()
@@ -302,10 +285,10 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
         .getConfig()
         .then((config: Config) => {
           setApiKey(config.apiKey || '')
-          setApiProvider(config.apiProvider || 'openai')
-          setExtractionModel(config.extractionModel || 'gpt-4o')
-          setSolutionModel(config.solutionModel || 'gpt-4o')
-          setDebuggingModel(config.debuggingModel || 'gpt-4o')
+          setApiProvider(config.apiProvider || 'groq')
+          setExtractionModel(config.extractionModel || 'meta-llama/llama-4-scout-17b-16e-instruct')
+          setSolutionModel(config.solutionModel || 'meta-llama/llama-4-scout-17b-16e-instruct')
+          setDebuggingModel(config.debuggingModel || 'meta-llama/llama-4-scout-17b-16e-instruct')
         })
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .catch((error: any) => {
@@ -357,8 +340,8 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
               <div
                 className={`flex-1 p-2 rounded-lg cursor-pointer transition-colors ${
                   apiProvider === 'openai'
-                    ? 'bg-white/10 border border-white/50'
-                    : 'bg-black/30 border border-white/5 hover:bg-white/5'
+                    ? 'bg-white/10 border border-white/40'
+                    : 'bg-zinc-800/30 border border-white/5 hover:bg-white/5'
                 }`}
                 onClick={() => handleProviderChange('openai')}
               >
@@ -377,8 +360,8 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
               <div
                 className={`flex-1 p-2 rounded-lg cursor-pointer transition-colors ${
                   apiProvider === 'gemini'
-                    ? 'bg-white/10 border border-white/50'
-                    : 'bg-black/30 border border-white/5 hover:bg-white/5'
+                    ? 'bg-blue-700/30 border border-blue-100/40'
+                    : 'bg-blue-700/10 border border-blue-100/10 hover:bg-blue-600/20'
                 }`}
                 onClick={() => handleProviderChange('gemini')}
               >
@@ -397,20 +380,20 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
               <div
                 className={`flex-1 p-2 rounded-lg cursor-pointer transition-colors ${
                   apiProvider === 'groq'
-                    ? 'bg-white/10 border border-white/50'
-                    : 'bg-black/30 border border-white/5 hover:bg-white/5'
+                    ? 'bg-orange-700/30 border border-orange-100/40'
+                    : 'bg-orange-700/10 border border-orange-100/10 hover:bg-orange-600/20'
                 }`}
                 onClick={() => handleProviderChange('groq')}
               >
                 <div className="flex items-center gap-2">
                   <div
-                    className={`w-3 h-3 rounded-full ${
+                    className={`min-w-3 h-3 rounded-full ${
                       apiProvider === 'groq' ? 'bg-white' : 'bg-white/20'
                     }`}
                   />
                   <div className="flex flex-col">
                     <p className="font-medium text-white text-sm">Groq</p>
-                    <p className="text-xs text-white/60">Llama 3 & Mixtral</p>
+                    <p className="text-xs text-white/60">Llama</p>
                   </div>
                 </div>
               </div>
