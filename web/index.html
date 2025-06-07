@@ -3,7 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cluelessly - Everything You Need. Before You Ask.</title>
+    <title>Cluelessly</title>
+    <meta
+      name="description"
+      content="Cluelessly - The undetectable AI that sees your screen, codes for you, and feeds you answers — in real time ;)"
+    />
+    <meta
+      name="keywords"
+      content="Cluelessly, AI, undetectable, screen, code, answers, real time"
+    />
+    <meta property="og:image" content="https://i.postimg.cc/cdqKxKyy/700-1x-shots-so.jpg" />
+    <meta name="author" content="Xeven" />
+    <meta name="robots" content="index, follow" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -12,27 +23,22 @@
     />
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
       body {
         font-family: 'Host Grotesk', sans-serif;
+        scroll-behavior: smooth;
+        overflow-x: hidden;
       }
       ::selection {
         background-color: rgba(59, 176, 255);
         color: white;
       }
       ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-      }
-      ::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 4px;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 4px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.3);
+        display: none;
       }
       @keyframes float {
         0%,
@@ -156,6 +162,18 @@
         -webkit-animation: text-focus-in 1s cubic-bezier(0.55, 0.085, 0.68, 0.53) both;
         animation: text-focus-in 1s cubic-bezier(0.55, 0.085, 0.68, 0.53) both;
       }
+      .scroll-watcher {
+        animation: scroll-watcher linear;
+        animation-timeline: scroll();
+      }
+      @keyframes scroll-watcher {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
     </style>
   </head>
   <body class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-cyan-50">
@@ -171,8 +189,8 @@
       </div>
 
       <div class="hidden md:flex items-center space-x-8 text-zinc-700">
-        <a href="#" class="hover:text-blue-600 transition-colors">How it works</a>
-        <a href="#" class="hover:text-blue-600 transition-colors">Use cases</a>
+        <a href="#how-it-works" class="hover:text-blue-600 transition-colors">How it works</a>
+        <a href="#use-cases" class="hover:text-blue-600 transition-colors">Use cases</a>
       </div>
 
       <button
@@ -235,22 +253,22 @@
         <p class="text-xl text-zinc-500 mb-12 max-w-2xl mx-auto md:leading-normal leading-snug">
           Cluelessly is an undetectable AI that sees your screen,
           <br />
-          hears your calls, and feeds you answers — in real time.
+          codes for you, and feeds you answers — in real time ;)
         </p>
 
-        <!-- CTA Buttons -->
-        <div class="flex flex-col items-center space-y-4">
+        <a href="https://github.com/xeven777/Clueless-coder" target="_blank">
           <button
-            class="bg-zinc-800 text-white px-8 py-4 rounded-xl flex items-center space-x-3 text-lg font-medium shadow-2xl hover:bg-zinc-700 duration-300 active:scale-95 glow transition-all"
+            class="bg-zinc-800 text-white px-8 py-4 rounded-xl flex items-center space-x-3 text-lg font-medium shadow-2xl hover:bg-zinc-700 duration-300 active:scale-95 glow transition-all mx-auto"
           >
             <span>Download Now</span>
           </button>
-        </div>
+        </a>
       </div>
     </section>
 
     <!-- Features Section -->
     <section
+      id="use-cases"
       class="px-8 min-h-dvh py-20 flex items-center justify-center bg-gradient-to-r from-slate-900 via-black to-slate-900 text-white"
     >
       <div class="max-w-6xl mx-auto text-center">
@@ -340,7 +358,7 @@
     </section>
 
     <section class="px-8 min-h-dvh pt-10 md:py-20 flex flex-col items-center justify-center">
-      <h2 class="text-5xl md:text-6xl text-center font-bold mb-10">
+      <h2 class="text-5xl scroll-watcher md:text-6xl text-center font-bold mb-10">
         “But, this feels like cheating!”
       </h2>
 
@@ -353,7 +371,7 @@
     </section>
 
     <!-- Demo Section -->
-    <section class="px-8 pt-10 pb-60">
+    <section class="px-8 pt-10 pb-60" id="how-it-works">
       <div class="max-w-4xl mx-auto">
         <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-zinc-200 float">
           <!-- Demo Interface Header -->
@@ -419,8 +437,8 @@
                     <h3 class="font-semibold text-zinc-900 mb-2">What is Cluelessly?</h3>
                     <p class="text-zinc-700">
                       Cluelessly is a proactive AI assistant. Unlike traditional AI chatbots where
-                      you need to actively ask questions, Cluelessly runs in the background,
-                      continuously observing your screen content and...
+                      you need to actively ask questions, Cluelessly can hide in the background and
+                      provide coding answers by scanning the screen.
                     </p>
                   </div>
                 </div>
@@ -432,7 +450,9 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-zinc-900 text-white px-8 py-12">
+    <footer
+      class="bg-gradient-to-b from-zinc-800 to-zinc-950 rounded-t-3xl overflow-hidden text-white px-8 py-12"
+    >
       <div class="max-w-6xl mx-auto">
         <div class="flex items-center flex-wrap gap-4 justify-between">
           <div class="flex items-center space-x-2 text-2xl font-bold">
