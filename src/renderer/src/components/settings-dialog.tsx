@@ -46,14 +46,29 @@ const modelCategories: ModelCategory[] = [
     ],
     geminiModels: [
       {
-        id: 'gemini-1.5-pro',
-        name: 'Gemini 1.5 Pro',
-        description: 'Best overall performance for problem extraction'
+        id: 'gemini-2.5-flash-preview-05-20',
+        name: 'Gemini 2.5 Flash',
+        description: 'Adaptive thinking, best for complex problem extraction'
       },
       {
         id: 'gemini-2.0-flash',
         name: 'Gemini 2.0 Flash',
-        description: 'Faster, more cost-effective model for problem extraction'
+        description: 'Next generation features, speed, and realtime streaming'
+      },
+      {
+        id: 'gemini-2.0-flash-lite',
+        name: 'Gemini 2.0 Flash Lite',
+        description: 'Cost efficient and low latency for basic extraction'
+      },
+      {
+        id: 'gemini-1.5-flash',
+        name: 'Gemini 1.5 Flash',
+        description: 'Fast and versatile performance across diverse tasks'
+      },
+      {
+        id: 'gemini-1.5-pro',
+        name: 'Gemini 1.5 Pro',
+        description: 'Complex reasoning for challenging problem extraction'
       }
     ],
     groqModels: [
@@ -87,14 +102,34 @@ const modelCategories: ModelCategory[] = [
     ],
     geminiModels: [
       {
-        id: 'gemini-1.5-pro',
-        name: 'Gemini 1.5 Pro',
-        description: 'Best overall performance for solution generation'
+        id: 'gemini-2.5-flash-preview-05-20',
+        name: 'Gemini 2.5 Flash',
+        description: 'Adaptive thinking, best for complex solution generation'
       },
       {
         id: 'gemini-2.0-flash',
         name: 'Gemini 2.0 Flash',
-        description: 'Faster, more cost-effective model for solution generation'
+        description: 'Next generation features for high-quality solutions'
+      },
+      {
+        id: 'gemini-2.0-flash-lite',
+        name: 'Gemini 2.0 Flash Lite',
+        description: 'Cost efficient solution generation with low latency'
+      },
+      {
+        id: 'gemini-1.5-flash',
+        name: 'Gemini 1.5 Flash',
+        description: 'Versatile performance for various solution types'
+      },
+      {
+        id: 'gemini-1.5-flash-8b',
+        name: 'Gemini 1.5 Flash 8B',
+        description: 'High volume solution generation for simpler problems'
+      },
+      {
+        id: 'gemini-1.5-pro',
+        name: 'Gemini 1.5 Pro',
+        description: 'Complex reasoning for challenging solution generation'
       }
     ],
     groqModels: [
@@ -144,14 +179,34 @@ const modelCategories: ModelCategory[] = [
     ],
     geminiModels: [
       {
-        id: 'gemini-1.5-pro',
-        name: 'Gemini 1.5 Pro',
-        description: 'Best overall performance for debugging'
+        id: 'gemini-2.5-flash-preview-05-20',
+        name: 'Gemini 2.5 Flash',
+        description: 'Adaptive thinking, best for complex debugging scenarios'
       },
       {
         id: 'gemini-2.0-flash',
         name: 'Gemini 2.0 Flash',
-        description: 'Faster, more cost-effective model for debugging'
+        description: 'Next generation debugging with realtime analysis'
+      },
+      {
+        id: 'gemini-2.0-flash-lite',
+        name: 'Gemini 2.0 Flash Lite',
+        description: 'Cost efficient debugging with low latency'
+      },
+      {
+        id: 'gemini-1.5-flash',
+        name: 'Gemini 1.5 Flash',
+        description: 'Versatile debugging across different codebases'
+      },
+      {
+        id: 'gemini-1.5-flash-8b',
+        name: 'Gemini 1.5 Flash 8B',
+        description: 'High volume debugging for simpler issues'
+      },
+      {
+        id: 'gemini-1.5-pro',
+        name: 'Gemini 1.5 Pro',
+        description: 'Advanced reasoning for complex debugging tasks'
       }
     ],
     groqModels: [
@@ -224,9 +279,9 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
       setSolutionModel('gpt-4o')
       setDebuggingModel('gpt-4o')
     } else if (provider === 'gemini') {
-      setExtractionModel('gemini-1.5-pro')
-      setSolutionModel('gemini-1.5-pro')
-      setDebuggingModel('gemini-1.5-pro')
+      setExtractionModel('gemini-2.0-flash')
+      setSolutionModel('gemini-2.0-flash')
+      setDebuggingModel('gemini-2.0-flash')
     } else if (provider === 'groq') {
       setExtractionModel('meta-llama/llama-4-scout-17b-16e-instruct')
       setSolutionModel('meta-llama/llama-4-scout-17b-16e-instruct')

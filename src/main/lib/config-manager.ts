@@ -71,7 +71,14 @@ export class ConfigManager extends EventEmitter {
       }
       return model
     } else if (provider === 'gemini') {
-      const allowedModels = ['gemini-2.0-flash', 'gemini-1.5-pro']
+      const allowedModels = [
+        'gemini-2.5-flash-preview-05-20',
+        'gemini-2.0-flash',
+        'gemini-2.0-flash-lite',
+        'gemini-1.5-flash',
+        'gemini-1.5-flash-8b',
+        'gemini-1.5-pro'
+      ]
       if (!allowedModels.includes(model)) {
         console.log(
           `Invalid model: ${model} for provider: ${provider}. Defaulting to gemini-2.0-flash`
