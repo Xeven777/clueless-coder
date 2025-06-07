@@ -83,16 +83,6 @@
    yarn install
    ```
 
-3. **Configure environment**
-   Create a `.env` file in the root directory with your API keys:
-
-   ```env
-   # Required: At least one API key must be provided
-   OPENAI_API_KEY=your_openai_api_key
-   GEMINI_API_KEY=your_gemini_api_key
-   GROQ_API_KEY=your_groq_api_key
-   ```
-
 ## 🏃‍♂️ Running the Application
 
 ### Development Mode
