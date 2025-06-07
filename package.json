@@ -1,6 +1,6 @@
 {
   "name": "cluelessly",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A powerful desktop application that helps developers solve coding problems by analyzing screenshots of code and providing AI-powered solutions.",
   "main": "./out/main/index.js",
   "author": "https://github.com/Xeven777",

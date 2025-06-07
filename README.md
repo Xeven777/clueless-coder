@@ -25,8 +25,8 @@
 
 - **Multiple AI Providers**:
   - Google Gemini (2.5 Flash, 2.0 Flash, 1.5 Pro, and more)
+  - Groq (Llama 4 and Llama 3 models)
   - OpenAI (GPT-4o, GPT-4o Mini)
-  - Groq (Llama 3 models)
 - **Smart Model Selection**:
   - Adaptive model selection based on task complexity
   - Balance between speed and accuracy
@@ -152,7 +152,8 @@ Choose different models based on your needs:
 - **Gemini 2.0 Flash**: Balanced performance
 - **Gemini 1.5 Pro**: Advanced reasoning
 - **GPT-4o**: OpenAI's most capable model
-- **Llama 3**: Open-source alternative
+- **Llama 4**: Scout and Maverick
+- **Llama 3**: Another Open-source alternative
 
 ## 🤝 Contributing
 
@@ -194,5 +195,5 @@ Have questions or suggestions? Feel free to open an issue or reach out to us!
 ---
 
 <div align="center">
-  Made with ❤️ by XEVEN777
+  Made with ❤️ by <a href="https://anish7.me">Xeven</a>
 </div>
