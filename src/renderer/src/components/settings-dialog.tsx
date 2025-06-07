@@ -10,7 +10,7 @@ import {
 import { Input } from './ui/input'
 import { Button } from './ui/button'
 import { useToast } from '@renderer/providers/toast-context'
-type APIProvider = 'openai' | 'gemini'
+type APIProvider = 'openai' | 'gemini' | 'groq'
 
 type AIModel = {
   id: string
@@ -24,6 +24,7 @@ type ModelCategory = {
   description: string
   openaiModels: AIModel[]
   geminiModels: AIModel[]
+  groqModels: AIModel[]
 }
 
 const modelCategories: ModelCategory[] = [
@@ -45,14 +46,41 @@ const modelCategories: ModelCategory[] = [
     ],
     geminiModels: [
       {
-        id: 'gemini-1.5-pro',
-        name: 'Gemini 1.5 Pro',
-        description: 'Best overall performance for problem extraction'
+        id: 'gemini-2.5-flash-preview-05-20',
+        name: 'Gemini 2.5 Flash',
+        description: 'Adaptive thinking, best for complex problem extraction'
       },
       {
         id: 'gemini-2.0-flash',
         name: 'Gemini 2.0 Flash',
-        description: 'Faster, more cost-effective model for problem extraction'
+        description: 'Next generation features, speed, and realtime streaming'
+      },
+      {
+        id: 'gemini-2.0-flash-lite',
+        name: 'Gemini 2.0 Flash Lite',
+        description: 'Cost efficient and low latency for basic extraction'
+      },
+      {
+        id: 'gemini-1.5-flash',
+        name: 'Gemini 1.5 Flash',
+        description: 'Fast and versatile performance across diverse tasks'
+      },
+      {
+        id: 'gemini-1.5-pro',
+        name: 'Gemini 1.5 Pro',
+        description: 'Complex reasoning for challenging problem extraction'
+      }
+    ],
+    groqModels: [
+      {
+        id: 'meta-llama/llama-4-maverick-17b-128e-instruct',
+        name: 'Llama 4 Maverick',
+        description: 'Best overall performance for problem extraction'
+      },
+      {
+        id: 'meta-llama/llama-4-scout-17b-16e-instruct',
+        name: 'Llama 4 Scout',
+        description: 'Another capable model for problem extraction'
       }
     ]
   },
@@ -74,14 +102,62 @@ const modelCategories: ModelCategory[] = [
     ],
     geminiModels: [
       {
-        id: 'gemini-1.5-pro',
-        name: 'Gemini 1.5 Pro',
-        description: 'Best overall performance for solution generation'
+        id: 'gemini-2.5-flash-preview-05-20',
+        name: 'Gemini 2.5 Flash',
+        description: 'Adaptive thinking, best for complex solution generation'
       },
       {
         id: 'gemini-2.0-flash',
         name: 'Gemini 2.0 Flash',
-        description: 'Faster, more cost-effective model for solution generation'
+        description: 'Next generation features for high-quality solutions'
+      },
+      {
+        id: 'gemini-2.0-flash-lite',
+        name: 'Gemini 2.0 Flash Lite',
+        description: 'Cost efficient solution generation with low latency'
+      },
+      {
+        id: 'gemini-1.5-flash',
+        name: 'Gemini 1.5 Flash',
+        description: 'Versatile performance for various solution types'
+      },
+      {
+        id: 'gemini-1.5-flash-8b',
+        name: 'Gemini 1.5 Flash 8B',
+        description: 'High volume solution generation for simpler problems'
+      },
+      {
+        id: 'gemini-1.5-pro',
+        name: 'Gemini 1.5 Pro',
+        description: 'Complex reasoning for challenging solution generation'
+      }
+    ],
+    groqModels: [
+      {
+        id: 'meta-llama/llama-4-scout-17b-16e-instruct',
+        name: 'Llama 4 Scout',
+        description: 'Best overall performance for solution generation'
+      },
+      {
+        id: 'meta-llama/llama-4-maverick-17b-128e-instruct',
+        name: 'Llama 4 Maverick',
+        description: 'Another capable model for solution generation'
+      },
+
+      {
+        id: 'llama-3.3-70b-versatile',
+        name: 'Llama 3.3 70B Versatile',
+        description: 'Very fast model of Llama'
+      },
+      {
+        id: 'llama3-70b-8192',
+        name: 'Llama 3 70B 8192',
+        description: 'Very fast model of Llama'
+      },
+      {
+        id: 'llama3-8b-8192',
+        name: 'Llama 3 8B 8192',
+        description: 'Very Cheap and fast model of Llama'
       }
     ]
   },
@@ -103,14 +179,61 @@ const modelCategories: ModelCategory[] = [
     ],
     geminiModels: [
       {
-        id: 'gemini-1.5-pro',
-        name: 'Gemini 1.5 Pro',
-        description: 'Best overall performance for debugging'
+        id: 'gemini-2.5-flash-preview-05-20',
+        name: 'Gemini 2.5 Flash',
+        description: 'Adaptive thinking, best for complex debugging scenarios'
       },
       {
         id: 'gemini-2.0-flash',
         name: 'Gemini 2.0 Flash',
-        description: 'Faster, more cost-effective model for debugging'
+        description: 'Next generation debugging with realtime analysis'
+      },
+      {
+        id: 'gemini-2.0-flash-lite',
+        name: 'Gemini 2.0 Flash Lite',
+        description: 'Cost efficient debugging with low latency'
+      },
+      {
+        id: 'gemini-1.5-flash',
+        name: 'Gemini 1.5 Flash',
+        description: 'Versatile debugging across different codebases'
+      },
+      {
+        id: 'gemini-1.5-flash-8b',
+        name: 'Gemini 1.5 Flash 8B',
+        description: 'High volume debugging for simpler issues'
+      },
+      {
+        id: 'gemini-1.5-pro',
+        name: 'Gemini 1.5 Pro',
+        description: 'Advanced reasoning for complex debugging tasks'
+      }
+    ],
+    groqModels: [
+      {
+        id: 'meta-llama/llama-4-scout-17b-16e-instruct',
+        name: 'Llama 4 Scout',
+        description: 'Best overall performance for solution generation'
+      },
+      {
+        id: 'meta-llama/llama-4-maverick-17b-128e-instruct',
+        name: 'Llama 4 Maverick',
+        description: 'Another capable model for solution generation'
+      },
+      {
+        id: 'llama-3.3-70b-versatile',
+        name: 'Llama 3.3 70B Versatile',
+        description: 'Very fast model of Llama'
+      },
+      {
+        id: 'llama3-70b-8192',
+        name: 'Llama 3 70B 8192',
+        description: 'Very fast model of Llama'
+      },
+      {
+        id: 'llama3-8b-8192',
+        name: 'Llama 3 8B 8192',
+        description: 'Very Cheap and fast model of Llama'
       }
     ]
   }
@@ -125,10 +248,12 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
   const [open, setOpen] = useState(openProp || false)
   console.log('open', open)
   const [apiKey, setApiKey] = useState('')
-  const [apiProvider, setApiProvider] = useState<APIProvider>('openai')
-  const [extractionModel, setExtractionModel] = useState('gpt-4o')
-  const [solutionModel, setSolutionModel] = useState('gpt-4o')
-  const [debuggingModel, setDebuggingModel] = useState('gpt-4o')
+  const [apiProvider, setApiProvider] = useState<APIProvider>('groq')
+  const [extractionModel, setExtractionModel] = useState(
+    'meta-llama/llama-4-scout-17b-16e-instruct'
+  )
+  const [solutionModel, setSolutionModel] = useState('meta-llama/llama-4-scout-17b-16e-instruct')
+  const [debuggingModel, setDebuggingModel] = useState('meta-llama/llama-4-scout-17b-16e-instruct')
   const [isLoading, setIsLoading] = useState(false)
 
   const { showToast } = useToast()
@@ -153,10 +278,14 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
       setExtractionModel('gpt-4o')
       setSolutionModel('gpt-4o')
       setDebuggingModel('gpt-4o')
-    } else {
-      setExtractionModel('gemini-1.5-pro')
-      setSolutionModel('gemini-1.5-pro')
-      setDebuggingModel('gemini-1.5-pro')
+    } else if (provider === 'gemini') {
+      setExtractionModel('gemini-2.0-flash')
+      setSolutionModel('gemini-2.0-flash')
+      setDebuggingModel('gemini-2.0-flash')
+    } else if (provider === 'groq') {
+      setExtractionModel('meta-llama/llama-4-scout-17b-16e-instruct')
+      setSolutionModel('meta-llama/llama-4-scout-17b-16e-instruct')
+      setDebuggingModel('meta-llama/llama-4-scout-17b-16e-instruct')
     }
   }
 
@@ -201,7 +330,7 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
       setIsLoading(true)
       interface Config {
         apiKey?: string
-        apiProvider?: 'openai' | 'gemini'
+        apiProvider?: 'openai' | 'gemini' | 'groq'
         extractionModel?: string
         solutionModel?: string
         debuggingModel?: string
@@ -211,10 +340,10 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
         .getConfig()
         .then((config: Config) => {
           setApiKey(config.apiKey || '')
-          setApiProvider(config.apiProvider || 'openai')
-          setExtractionModel(config.extractionModel || 'gpt-4o')
-          setSolutionModel(config.solutionModel || 'gpt-4o')
-          setDebuggingModel(config.debuggingModel || 'gpt-4o')
+          setApiProvider(config.apiProvider || 'groq')
+          setExtractionModel(config.extractionModel || 'meta-llama/llama-4-scout-17b-16e-instruct')
+          setSolutionModel(config.solutionModel || 'meta-llama/llama-4-scout-17b-16e-instruct')
+          setDebuggingModel(config.debuggingModel || 'meta-llama/llama-4-scout-17b-16e-instruct')
         })
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .catch((error: any) => {
@@ -266,8 +395,8 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
               <div
                 className={`flex-1 p-2 rounded-lg cursor-pointer transition-colors ${
                   apiProvider === 'openai'
-                    ? 'bg-white/10 border border-white/50'
-                    : 'bg-black/30 border border-white/5 hover:bg-white/5'
+                    ? 'bg-white/10 border border-white/40'
+                    : 'bg-zinc-800/30 border border-white/5 hover:bg-white/5'
                 }`}
                 onClick={() => handleProviderChange('openai')}
               >
@@ -286,8 +415,8 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
               <div
                 className={`flex-1 p-2 rounded-lg cursor-pointer transition-colors ${
                   apiProvider === 'gemini'
-                    ? 'bg-white/10 border border-white/50'
-                    : 'bg-black/30 border border-white/5 hover:bg-white/5'
+                    ? 'bg-blue-700/30 border border-blue-100/40'
+                    : 'bg-blue-700/10 border border-blue-100/10 hover:bg-blue-600/20'
                 }`}
                 onClick={() => handleProviderChange('gemini')}
               >
@@ -299,7 +428,27 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
                   />
                   <div className="flex flex-col">
                     <p className="font-medium text-white text-sm">Gemini</p>
-                    <p className="text-xs text-white/60">Gemini 1.5 models</p>
+                    <p className="text-xs text-white/60">Gemini models</p>
+                  </div>
+                </div>
+              </div>
+              <div
+                className={`flex-1 p-2 rounded-lg cursor-pointer transition-colors ${
+                  apiProvider === 'groq'
+                    ? 'bg-orange-700/30 border border-orange-100/40'
+                    : 'bg-orange-700/10 border border-orange-100/10 hover:bg-orange-600/20'
+                }`}
+                onClick={() => handleProviderChange('groq')}
+              >
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`min-w-3 h-3 rounded-full ${
+                      apiProvider === 'groq' ? 'bg-white' : 'bg-white/20'
+                    }`}
+                  />
+                  <div className="flex flex-col">
+                    <p className="font-medium text-white text-sm">Groq</p>
+                    <p className="text-xs text-white/60">Llama</p>
                   </div>
                 </div>
               </div>
@@ -308,12 +457,22 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-white" htmlFor="apiKey">
-              {apiProvider === 'openai' ? 'OpenAI API Key' : 'Google AI Studio API Key'}
+              {apiProvider === 'openai'
+                ? 'OpenAI API Key'
+                : apiProvider === 'gemini'
+                  ? 'Google AI Studio API Key'
+                  : 'Groq API Key'}
             </label>
             <Input
               id="apiKey"
               type="password"
-              placeholder={apiProvider === 'openai' ? 'sk-...' : 'AIza...'}
+              placeholder={
+                apiProvider === 'openai'
+                  ? 'sk-...'
+                  : apiProvider === 'gemini'
+                    ? 'AIza...'
+                    : 'gsk_...'
+              }
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               className="bg-black/50 border-white/10 text-white"
@@ -321,53 +480,53 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
             {apiKey && <p className="text-xs text-white/50">Current {maskApiKey(apiKey)}</p>}
             <p className="text-xs text-white/50">
               Your API key is stored locally in your browser. It is not sent to any servers.
-              {apiProvider === 'gemini' ? 'OpenAI' : 'Google'}
+              {apiProvider === 'openai'
+                ? ' OpenAI'
+                : apiProvider === 'groq'
+                  ? ' Groq'
+                  : ' Google'}{' '}
+              API keys are used.
             </p>
             <div className="mt-2 p-2 rounded-md bg-white/5 border border-white/10">
               <p className="text-xs text-white/80 mb-1">Don&apos;t have an API key?</p>
               {apiProvider === 'openai' ? (
                 <>
                   <p className="text-xs text-white/60 mb-1">
-                    1. Create an account at{' '}
-                    <button
-                      onClick={() => openExternalLink('https://platform.openai.com/signup')}
-                      className="text-blue-400 hover:underline cursor-pointer"
-                    >
-                      OpenAI
-                    </button>
-                  </p>
-                  <p className="text-xs text-white/60 mb-1">
-                    2. Go to{' '}
+                    1. Go to{' '}
                     <button
                       onClick={() => openExternalLink('https://platform.openai.com/api-keys')}
                       className="text-blue-400 hover:underline cursor-pointer"
                     >
-                      API Keys
+                      OpenAI API Keys
                     </button>
                   </p>
-                  <p className="text-xs text-white/60">3. Create an API key and paste it here</p>
+                  <p className="text-xs text-white/60">2. Create an API key and paste it here</p>
                 </>
-              ) : (
+              ) : apiProvider === 'gemini' ? (
                 <>
                   <p className="text-xs text-white/60 mb-1">
-                    1. Create an account at{' '}
-                    <button
-                      onClick={() => openExternalLink('https://aistudio.google.com/')}
-                      className="text-blue-400 hover:underline cursor-pointer"
-                    >
-                      Google AI Studio
-                    </button>
-                  </p>
-                  <p className="text-xs text-white/60 mb-1">
-                    2. Go to{' '}
+                    1. Go to{' '}
                     <button
                       onClick={() => openExternalLink('https://aistudio.google.com/app/apikey')}
                       className="text-blue-400 hover:underline cursor-pointer"
                     >
-                      API Keys
+                      Google AI Studio API Keys
                     </button>
                   </p>
-                  <p className="text-xs text-white/60">3. Create an API key and paste it here</p>
+                  <p className="text-xs text-white/60">2. Create an API key and paste it here</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-xs text-white/60 mb-1">
+                    1. Go to{' '}
+                    <button
+                      onClick={() => openExternalLink('https://console.groq.com/keys')}
+                      className="text-blue-400 hover:underline cursor-pointer"
+                    >
+                      Groq Cloud API Keys
+                    </button>
+                  </p>
+                  <p className="text-xs text-white/60">2. Create an API key and paste it here</p>
                 </>
               )}
             </div>
@@ -417,12 +576,16 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
 
           <div className="space-y-4 mt-4">
             <label className="text-sm font-medium text-white">AI Model Selection</label>
-            <p className="text-xs text-white/60 -mt-3 mb-2">
+            <p className="text-xs text-white/60 mt-1 mb-2">
               Select which models to use for each stage of the process
             </p>
             {modelCategories.map((category) => {
               const models =
-                apiProvider === 'openai' ? category.openaiModels : category.geminiModels
+                apiProvider === 'openai'
+                  ? category.openaiModels
+                  : apiProvider === 'gemini'
+                    ? category.geminiModels
+                    : category.groqModels
 
               return (
                 <div key={category.key} className="mb-4">

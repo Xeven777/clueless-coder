@@ -154,7 +154,7 @@ function App(): React.JSX.Element {
             open={toastState.open}
             onOpenChange={(open) => setToastState((prev) => ({ ...prev, open }))}
             variant={toastState.variant}
-            duration={1500}
+            duration={1000}
           >
             <ToastTitle>{toastState.title}</ToastTitle>
             <ToastDescription>{toastState.description}</ToastDescription>
