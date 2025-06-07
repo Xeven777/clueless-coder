@@ -18,10 +18,10 @@ export class ConfigManager extends EventEmitter {
   private configPath: string
   private defaultConfig: Config = {
     apiKey: '',
-    apiProvider: 'openai',
-    extractionModel: 'gpt-4o-mini',
-    solutionModel: 'gpt-4o-mini',
-    debuggingModel: 'gpt-4o-mini',
+    apiProvider: 'groq',
+    extractionModel: 'meta-llama/llama-4-scout-17b-16e-instruct',
+    solutionModel: 'meta-llama/llama-4-scout-17b-16e-instruct',
+    debuggingModel: 'meta-llama/llama-4-scout-17b-16e-instruct',
     language: 'python',
     opacity: 1.0
   }
@@ -74,9 +74,26 @@ export class ConfigManager extends EventEmitter {
       const allowedModels = ['gemini-2.0-flash', 'gemini-1.5-pro']
       if (!allowedModels.includes(model)) {
         console.log(
-          `Invalid model: ${model} for provider: ${provider}. Defaulting to gemini-1.5-flash`
+          `Invalid model: ${model} for provider: ${provider}. Defaulting to gemini-2.0-flash`
         )
         return 'gemini-2.0-flash'
+      }
+      return model
+    } else if (provider === 'groq') {
+      const allowedModels = [
+        'meta-llama/llama-4-scout-17b-16e-instruct',
+        'meta-llama/llama-4-maverick-17b-128e-instruct',
+        'qwen-qwq-32b',
+        'deepseek-r1-distill-llama-70b',
+        'llama-3.3-70b-versatile',
+        'llama3-70b-8192',
+        'llama3-8b-8192'
+      ]
+      if (!allowedModels.includes(model)) {
+        console.log(
+          `Invalid model: ${model} for provider: ${provider}. Defaulting to meta-llama/llama-4-scout-17b-16e-instruct`
+        )
+        return 'meta-llama/llama-4-scout-17b-16e-instruct'
       }
       return model
     }
@@ -89,7 +106,11 @@ export class ConfigManager extends EventEmitter {
         const configData = fs.readFileSync(this.configPath, 'utf-8')
         const config = JSON.parse(configData)
 
-        if (config.apiProvider !== 'openai' && config.apiProvider !== 'gemini') {
+        if (
+          config.apiProvider !== 'openai' &&
+          config.apiProvider !== 'gemini' &&
+          config.apiProvider !== 'groq'
+        ) {
           console.log('Invalid API provider. Defaulting to openai')
           config.apiProvider = 'openai'
         }
@@ -138,6 +159,9 @@ export class ConfigManager extends EventEmitter {
         if (updates.apiKey.trim().startsWith('sk-')) {
           provider = 'openai'
           console.log('Detected OpenAI API key. Setting provider to openai')
+        } else if (updates.apiKey.trim().startsWith('gsk_')) {
+          provider = 'groq'
+          console.log('Detected Groq API key. Setting provider to groq')
         } else {
           provider = 'gemini'
           console.log('Detected Gemini API key. Setting provider to gemini')
@@ -151,10 +175,14 @@ export class ConfigManager extends EventEmitter {
           updates.extractionModel = 'gpt-4o'
           updates.solutionModel = 'gpt-4o'
           updates.debuggingModel = 'gpt-4o'
-        } else {
+        } else if (updates.apiProvider === 'gemini') {
           updates.extractionModel = 'gemini-2.0-flash'
           updates.solutionModel = 'gemini-2.0-flash'
           updates.debuggingModel = 'gemini-2.0-flash'
+        } else if (updates.apiProvider === 'groq') {
+          updates.extractionModel = 'meta-llama/llama-4-scout-17b-16e-instruct'
+          updates.solutionModel = 'meta-llama/llama-4-scout-17b-16e-instruct'
+          updates.debuggingModel = 'meta-llama/llama-4-scout-17b-16e-instruct'
         }
       }
 
@@ -207,26 +235,20 @@ export class ConfigManager extends EventEmitter {
     return !!config.apiKey && config.apiKey.trim().length > 0
   }
 
-  public isValidApiKeyFormat(apiKey: string, provider?: 'openai' | 'gemini'): boolean {
-    if (!provider) {
-      if (apiKey.trim().startsWith('sk-')) {
-        provider = 'openai'
-      } else {
-        provider = 'gemini'
-      }
-    }
-
+  public isValidApiKeyFormat(apiKey: string, provider?: 'openai' | 'gemini' | 'groq'): boolean {
     if (provider === 'openai') {
-      return /^sk-\w{48}$/.test(apiKey)
+      return apiKey.trim().startsWith('sk-')
     } else if (provider === 'gemini') {
-      return /^AIzaSyB.*$/.test(apiKey)
+      return apiKey.trim().startsWith('AIzaSyB')
+    } else if (provider === 'groq') {
+      return apiKey.trim().startsWith('gsk_')
     }
     return false
   }
 
   public async testApiKey(
     apiKey: string,
-    provider?: 'openai' | 'gemini'
+    provider?: 'openai' | 'gemini' | 'groq'
   ): Promise<{
     valid: boolean
     error?: string
@@ -234,6 +256,8 @@ export class ConfigManager extends EventEmitter {
     if (!provider) {
       if (apiKey.trim().startsWith('sk-')) {
         provider = 'openai'
+      } else if (apiKey.trim().startsWith('gsk_')) {
+        provider = 'groq'
       } else {
         provider = 'gemini'
       }
@@ -243,6 +267,8 @@ export class ConfigManager extends EventEmitter {
       return this.testOpenAiKey(apiKey)
     } else if (provider === 'gemini') {
       return this.testGeminiKey()
+    } else if (provider === 'groq') {
+      return this.testGroqKey(apiKey)
     }
 
     return { valid: false, error: 'Invalid provider' }
@@ -274,6 +300,37 @@ export class ConfigManager extends EventEmitter {
     } catch (error) {
       console.error('Gemini API key test failed:', error)
       return { valid: false, error: 'Invalid API key' }
+    }
+  }
+
+  private async testGroqKey(apiKey: string): Promise<{
+    valid: boolean
+    error?: string
+  }> {
+    try {
+      const response = await fetch('https://api.groq.com/openai/v1/models', {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`)
+      }
+
+      const data = await response.json()
+      if (data && Array.isArray(data.data)) {
+        return { valid: true }
+      }
+
+      return { valid: false, error: 'Invalid API response' }
+    } catch (error) {
+      console.error('Groq API key test failed:', error)
+      return {
+        valid: false,
+        error: error instanceof Error ? error.message : 'Failed to validate Groq API key'
+      }
     }
   }
 

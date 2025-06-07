@@ -170,7 +170,7 @@ export function initializeIpcHandler(deps: IIPCHandler): void {
   ipcMain.handle(
     'update-content-dimensions',
     async (_, { width, height }: { width: number; height: number }) => {
-      console.log('update-content-dimensions', width, height)
+      // console.log('update-content-dimensions', width, height)
       if (width && height) {
         deps.setWindowDimensions(width, height)
       }
