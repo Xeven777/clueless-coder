@@ -405,7 +405,7 @@ export class ProcessingManager {
           { role: 'user', content: userMessagesContent }
         ],
         temperature: 0.2,
-        maxTokens: llmProvider.provider == 'openai' ? 4000 : 6000, // Vercel SDK might have different defaults or ways to set this
+        maxTokens: llmProvider.provider == 'openai' ? 4000 : 6000,
         mode: 'json', // Enforce JSON output mode if supported by the model/provider
         abortSignal
       })
@@ -505,7 +505,7 @@ Your solution should be efficient, well-commented, and handle edge cases.
           { role: 'user', content: promptText }
         ],
         temperature: 0.2,
-        maxTokens: 4000,
+        maxTokens: solutionLLMProvider.provider == 'openai' ? 4000 : 6000,
         abortSignal
       })
       console.log('LLM Usage (Solution Generation):', usage)
@@ -673,7 +673,7 @@ Your solution should be efficient, well-commented, and handle edge cases.
           { role: 'user', content: userMessagesContent }
         ],
         temperature: 0.2,
-        maxTokens: 4000,
+        maxTokens: debuggingLLMProvider.provider == 'openai' ? 4000 : 6000,
         abortSignal
       })
       console.log('LLM Usage (Debugging):', usage)
