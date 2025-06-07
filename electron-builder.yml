@@ -1,4 +1,4 @@
-appId: com.kuluruvineeth.silentcoder
+appId: com.xeven777.cluelessly
 productName: cluelessly
 directories:
   buildResources: build
@@ -47,6 +47,6 @@ appImage:
 npmRebuild: false
 publish:
   provider: github
-  owner: kuluruvineeth
+  owner: xeven777
   repo: cluelessly
   releaseType: release

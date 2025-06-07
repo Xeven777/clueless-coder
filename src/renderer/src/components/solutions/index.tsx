@@ -8,6 +8,7 @@ import { ComplexitySection } from './complexity-section'
 import ScreenshotQueue from '../queue/screenshot-queue'
 import { useToast } from '@renderer/providers/toast-context'
 import SolutionCommands from './solution-commands'
+import ReactMarkdown from 'react-markdown'
 import Debug from '../debug'
 export interface SolutionsProps {
   setView: (view: 'queue' | 'solutions' | 'debug') => void
@@ -304,7 +305,9 @@ const Solutions: React.FC<SolutionsProps> = ({ setView, currentLanguage, setLang
                                 {thoughtsData.map((thought, index) => (
                                   <div key={index} className="flex items-start gap-2">
                                     <div className="w-1 h-1 rounded-full bg-blue-400/80 mt-2 shrink-0" />
-                                    <div>{thought}</div>
+                                    <div>
+                                      <ReactMarkdown>{thought}</ReactMarkdown>
+                                    </div>
                                   </div>
                                 ))}
                               </div>
