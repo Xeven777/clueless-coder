@@ -576,7 +576,7 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
 
           <div className="space-y-4 mt-4">
             <label className="text-sm font-medium text-white">AI Model Selection</label>
-            <p className="text-xs text-white/60 -mt-3 mb-2">
+            <p className="text-xs text-white/60 mt-1 mb-2">
               Select which models to use for each stage of the process
             </p>
             {modelCategories.map((category) => {
