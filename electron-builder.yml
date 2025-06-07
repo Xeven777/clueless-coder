@@ -1,5 +1,5 @@
 appId: com.kuluruvineeth.silentcoder
-productName: silent-coder
+productName: cluelessly
 directories:
   buildResources: build
 files:
@@ -12,7 +12,7 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: silent-coder
+  executableName: cluelessly
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
@@ -48,5 +48,5 @@ npmRebuild: false
 publish:
   provider: github
   owner: kuluruvineeth
-  repo: silent-coder
+  repo: cluelessly
   releaseType: release

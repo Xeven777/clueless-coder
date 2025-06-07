@@ -391,7 +391,7 @@ function setWindowDimensions(width: number, height: number): void {
 
 async function initializeApp() {
   try {
-    const appDataPath = path.join(app.getPath('appData'), 'silent-coder')
+    const appDataPath = path.join(app.getPath('appData'), 'cluelessly')
     const sessionPath = path.join(appDataPath, 'session')
     const tempPath = path.join(appDataPath, 'temp')
     const cachePath = path.join(appDataPath, 'cache')

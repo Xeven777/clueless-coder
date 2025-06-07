@@ -24,7 +24,7 @@ export class ScreenshotManager {
 
     this.screenshotDir = path.join(app.getPath('userData'), 'screenshots')
     this.extraScreenshotDir = path.join(app.getPath('userData'), 'extra_screenshots')
-    this.tempDir = path.join(app.getPath('temp'), 'silent-coder-screenshots')
+    this.tempDir = path.join(app.getPath('temp'), 'cluelessly-screenshots')
 
     this.ensureDirectoriesExist()
     this.cleanScreenshotDirectories()
