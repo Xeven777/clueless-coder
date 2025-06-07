@@ -40,6 +40,24 @@
       ::-webkit-scrollbar {
         display: none;
       }
+      .glow-overlay1 {
+        box-shadow:
+          inset 0 -25px 50px rgba(59, 130, 246, 0.6),
+          0 0 30px rgba(59, 130, 246, 0.2);
+        backdrop-filter: blur(8px);
+      }
+      .glow-overlay2 {
+        box-shadow:
+          inset 0 -20px 60px rgba(246, 128, 59, 0.6),
+          0 0 30px rgba(246, 103, 59, 0.2);
+        backdrop-filter: blur(8px);
+      }
+      .glow-overlay3 {
+        box-shadow:
+          inset 0 -20px 60px rgba(107, 114, 114, 0.6),
+          0 0 30px rgba(107, 103, 101, 0.2);
+        backdrop-filter: blur(8px);
+      }
       @keyframes float {
         0%,
         100% {
@@ -163,15 +181,17 @@
         animation: text-focus-in 1s cubic-bezier(0.55, 0.085, 0.68, 0.53) both;
       }
       .scroll-watcher {
-        animation: scroll-watcher linear;
-        animation-timeline: scroll();
+        animation: scroll-watcher linear forwards;
+        animation-timeline: view(390px 0px);
       }
       @keyframes scroll-watcher {
         from {
           opacity: 0;
+          filter: blur(3px);
         }
         to {
           opacity: 1;
+          filter: blur(0px);
         }
       }
     </style>
@@ -273,6 +293,117 @@
     >
       <div class="max-w-6xl mx-auto text-center">
         <h2 class="text-4xl md:text-5xl font-semibold tracking-tight mb-6">
+          the Best AI models for
+          <span
+            class="bg-gradient-to-r italic font-light text-5xl md:text-6xl tracking-tighter from-blue-100 to-cyan-50 bg-clip-text text-transparent"
+          >
+            Free
+          </span>
+        </h2>
+        <p class="text-xl text-zinc-400 mb-16">
+          Cutting edge AI models
+          <br />
+          which are best for coding and reasoning
+        </p>
+
+        <div class="grid grid-cols-2 md:grid-cols-3 max-w-6xl gap-6 md:gap-12">
+          <div
+            class="relative cursor-pointer hover:scale-105 transition-all duration-300 flex items-center justify-center w-64 h-64 rounded-3xl bg-gradient-to-b from-black to-slate-950 overflow-hidden"
+          >
+            <div
+              class="absolute bottom-0 left-0 w-full h-full flex flex-col items-center justify-end pointer-events-none z-0"
+            >
+              <div
+                class="glow-layer w-11/12 h-3 rounded-full bg-blue-900 opacity-60 blur-lg mb-1"
+              ></div>
+              <div
+                class="glow-layer w-10/12 h-3 rounded-full bg-blue-700 opacity-50 blur-md mb-1"
+              ></div>
+              <div class="glow-layer w-9/12 h-3 rounded-full bg-blue-100 opacity-70 blur-md"></div>
+            </div>
+            <div
+              class="relative z-20 text-4xl md:text-5xl font-bold text-center -translate-y-4 m-auto"
+            >
+              <span class="bg-gradient-to-b from-blue-200 to-cyan-50 bg-clip-text text-transparent"
+                >GEMINI</span
+              >
+            </div>
+            <div class="absolute inset-0 rounded-3xl pointer-events-none z-10 glow-overlay1"></div>
+          </div>
+
+          <div
+            class="relative cursor-pointer hover:scale-105 transition-all duration-300 flex items-center justify-center w-64 h-64 rounded-3xl bg-gradient-to-b from-black to-slate-950 overflow-hidden"
+          >
+            <div
+              class="absolute bottom-0 left-0 w-full h-full flex flex-col items-center justify-end pointer-events-none z-0"
+            >
+              <div
+                class="glow-layer w-11/12 h-3 rounded-full bg-red-900 opacity-60 blur-lg mb-1"
+              ></div>
+              <div
+                class="glow-layer w-10/12 h-3 rounded-full bg-orange-700 opacity-50 blur-md mb-1"
+              ></div>
+              <div
+                class="glow-layer w-9/12 h-3 rounded-full bg-orange-100 opacity-70 blur-md"
+              ></div>
+            </div>
+            <div
+              class="relative z-20 text-4xl md:text-5xl font-bold text-center -translate-y-4 m-auto"
+            >
+              <span
+                class="bg-gradient-to-b from-orange-200 to-amber-50 bg-clip-text text-transparent"
+                >GROQ</span
+              >
+            </div>
+            <div class="absolute inset-0 rounded-3xl pointer-events-none z-10 glow-overlay2"></div>
+          </div>
+
+          <div
+            class="relative cursor-pointer hover:scale-105 transition-all duration-300 flex items-center justify-center w-64 h-64 rounded-3xl bg-gradient-to-b from-black to-slate-950 overflow-hidden"
+          >
+            <div
+              class="absolute bottom-0 left-0 w-full h-full flex flex-col items-center justify-end pointer-events-none z-0"
+            >
+              <div
+                class="glow-layer w-11/12 h-3 rounded-full bg-zinc-900 opacity-60 blur-lg mb-1"
+              ></div>
+              <div
+                class="glow-layer w-10/12 h-3 rounded-full bg-zinc-700 opacity-50 blur-md mb-1"
+              ></div>
+              <div class="glow-layer w-9/12 h-3 rounded-full bg-zinc-100 opacity-70 blur-md"></div>
+            </div>
+            <div
+              class="relative z-20 text-4xl md:text-5xl font-bold text-center -translate-y-4 m-auto"
+            >
+              <span class="bg-gradient-to-b from-zinc-400 to-zinc-50 bg-clip-text text-transparent"
+                >OPENAI</span
+              >
+            </div>
+            <div class="absolute inset-0 rounded-3xl pointer-events-none z-10 glow-overlay3"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="px-8 min-h-[80vh] pt-10 md:py-20 flex flex-col items-center justify-center">
+      <h2 class="text-5xl scroll-watcher md:text-6xl text-center font-bold mb-10">
+        “But, this feels like cheating!”
+      </h2>
+
+      <button
+        type="button"
+        class="bg-zinc-800 text-lg font-semibold md:text-xl text-white px-8 py-3 rounded-full hover:bg-zinc-700 flex items-center space-x-2 active:scale-95 duration-300 transition-all glow"
+      >
+        We know ;)
+      </button>
+    </section>
+
+    <section
+      id="use-cases"
+      class="px-8 min-h-dvh py-20 flex items-center justify-center bg-gradient-to-r from-slate-900 via-black to-slate-900 text-white"
+    >
+      <div class="max-w-6xl mx-auto text-center">
+        <h2 class="text-4xl md:text-5xl font-semibold tracking-tight mb-6">
           Undetectable by
 
           <span
@@ -287,7 +418,7 @@
           trails. Works on everything.
         </p>
 
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
           <!-- Slack -->
           <div
             class="p-6 rounded-2xl bg-gradient-to-r from-green-400 to-blue-500 transform hover:scale-105 transition-transform"
@@ -328,18 +459,6 @@
             <div class="font-medium text-white">Zoom</div>
           </div>
 
-          <!-- Worldcoin -->
-          <div
-            class="p-6 rounded-2xl bg-gradient-to-r from-cyan-400 to-pink-500 transform hover:scale-105 transition-transform"
-          >
-            <div class="w-12 h-12 mx-auto mb-4 flex items-center justify-center">
-              <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-                <span class="text-lg font-bold text-cyan-600">W</span>
-              </div>
-            </div>
-            <div class="font-medium text-white">Worldcoin</div>
-          </div>
-
           <!-- Microsoft Teams -->
           <div
             class="p-6 rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-600 transform hover:scale-105 transition-transform"
@@ -357,21 +476,8 @@
       </div>
     </section>
 
-    <section class="px-8 min-h-dvh pt-10 md:py-20 flex flex-col items-center justify-center">
-      <h2 class="text-5xl scroll-watcher md:text-6xl text-center font-bold mb-10">
-        “But, this feels like cheating!”
-      </h2>
-
-      <button
-        type="button"
-        class="bg-zinc-800 text-lg font-semibold md:text-xl text-white px-8 py-3 rounded-full hover:bg-zinc-700 flex items-center space-x-2 active:scale-95 duration-300 transition-all glow"
-      >
-        We know ;)
-      </button>
-    </section>
-
     <!-- Demo Section -->
-    <section class="px-8 pt-10 pb-60" id="how-it-works">
+    <section class="px-8 py-40 pb-60" id="how-it-works">
       <div class="max-w-4xl mx-auto">
         <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-zinc-200 float">
           <!-- Demo Interface Header -->
