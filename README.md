@@ -13,13 +13,20 @@
   <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css" alt="Tailwind CSS">
 </div>
 
+## 📥 Download
+
+- [**Latest Release**](https://github.com/Xeven777/clueless-coder/releases/latest)
+- [**Windows (x64)**](https://github.com/Xeven777/clueless-coder/releases/download/v1.0.2/cluelessly-1.0.2-setup.exe)
+- [**Linux (AppImage)**](https://github.com/Xeven777/clueless-coder/releases/download/v1.0.2/cluelessly-1.0.2.AppImage)
+- [**Linux (deb)**](https://github.com/Xeven777/clueless-coder/releases/download/v1.0.2/cluelessly_1.0.2_amd64.deb)
+- [**Linux (snap)**](https://github.com/Xeven777/clueless-coder/releases/download/v1.0.2/cluelessly_1.0.2_amd64.snap)
+
 ## ✨ Features
 
 ### 🖥️ Multi-Platform Support
 
 - Works seamlessly on Windows, macOS, and Linux
 - Native performance with Electron
-- System tray integration for quick access
 
 ### 🤖 AI-Powered Coding
 
