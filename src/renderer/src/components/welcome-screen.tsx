@@ -41,6 +41,10 @@ export const WelcomeScreen = ({ onOpenSettings }: WelcomeScreenProps): React.JSX
                 <span className="text-white/90">Ctrl+R / Cmd+R</span>
               </li>
               <li className="flex justify-between text-sm">
+                <span className="text-white/70">Toggle Mode</span>
+                <span className="text-white/90">Ctrl+M / Cmd+M</span>
+              </li>
+              <li className="flex justify-between text-sm">
                 <span className="text-white/70">Quit App</span>
                 <span className="text-white/90">Ctrl+Q / Cmd+Q</span>
               </li>

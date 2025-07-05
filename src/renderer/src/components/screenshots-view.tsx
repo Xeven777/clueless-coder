@@ -122,12 +122,12 @@ const ScreenshotsView: React.FC<ScreenshotsViewProps> = ({
         <div className="space-y-3 w-fit">
           {/* Header with mode switch */}
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-lg font-semibold text-white">Screenshot Mode</h2>
+            <h2 className="text-lg font-semibold text-white">Coder Mode</h2>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setView('question')}
-              className="text-xs"
+              className="text-xs text-white"
             >
               Question Mode
             </Button>

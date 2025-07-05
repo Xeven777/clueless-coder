@@ -541,6 +541,9 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
                 <div className="text-white/70">Take Screenshot</div>
                 <div className="text-white/90 font-mono">Ctrl+H / Cmd+H</div>
 
+                <div className="text-white/70">Toggle Mode</div>
+                <div className="text-white/90 font-mono">Ctrl+M / Cmd+M</div>
+
                 <div className="text-white/70">Process Screenshot</div>
                 <div className="text-white/90 font-mono">Ctrl+Enter / Cmd+Enter</div>
 

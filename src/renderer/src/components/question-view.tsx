@@ -4,6 +4,7 @@ import { useToast } from '../providers/toast-context'
 import { Button } from './ui/button'
 import { LanguageSelector } from './language-selector'
 import { COMMAND_KEY } from '@renderer/lib/utils'
+import Markdown from 'react-markdown'
 
 interface QuestionViewProps {
   setView: (view: 'queue' | 'solutions' | 'debug' | 'question') => void
@@ -175,9 +176,9 @@ const QuestionView: React.FC<QuestionViewProps> = ({ setView, currentLanguage, s
                 variant="outline"
                 size="sm"
                 onClick={() => setView('queue')}
-                className="text-xs"
+                className="text-xs text-white"
               >
-                Screenshot Mode
+                Coder Mode
               </Button>
               <LanguageSelector currentLanguage={currentLanguage} setLanguage={setLanguage} />
             </div>
@@ -226,7 +227,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({ setView, currentLanguage, s
               <Button
                 onClick={handleSubmitQuestion}
                 disabled={isProcessing || !question.trim()}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 text-white border"
               >
                 {isProcessing ? (
                   <>
@@ -272,7 +273,9 @@ const QuestionView: React.FC<QuestionViewProps> = ({ setView, currentLanguage, s
                     Loading response...
                   </div>
                 ) : questionResponse ? (
-                  <div className="text-white/90 whitespace-pre-wrap">{questionResponse.answer}</div>
+                  <div className="text-white/90 whitespace-pre-wrap max-h-96 overflow-auto">
+                    <Markdown>{questionResponse.answer}</Markdown>
+                  </div>
                 ) : null}
               </div>
             </div>

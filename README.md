@@ -38,7 +38,7 @@
   - Adaptive model selection based on task complexity
   - Balance between speed and accuracy
 - **Dual Interaction Modes**:
-  - **Screenshot Mode**: Analyze code from screenshots and get structured solutions
+  - **Coder Mode**: Analyze code from screenshots and get structured solutions
   - **Question Mode**: Ask conversational questions with optional screenshot context
 
 ### 🛠️ Developer Experience
@@ -116,7 +116,7 @@ npm build:linux
 
 ## 🎯 Usage Guide
 
-### Screenshot Mode (Default)
+### Coder Mode (Default)
 
 1. Launch the application
 2. Capture code using `Ctrl+H` (or Cmd+H on Mac)
@@ -135,7 +135,7 @@ npm build:linux
 ### Mode Switching
 
 - **Toggle between modes**: `Ctrl+M` / `Cmd+M`
-- **Screenshot Mode**: Best for analyzing code problems and getting structured solutions
+- **Coder Mode**: Best for analyzing code problems and getting structured solutions
 - **Question Mode**: Perfect for asking general programming questions, getting explanations, or seeking advice
 
 ## ⌨️ Keyboard Shortcuts
