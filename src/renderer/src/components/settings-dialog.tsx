@@ -46,9 +46,20 @@ const modelCategories: ModelCategory[] = [
     ],
     geminiModels: [
       {
-        id: 'gemini-2.5-flash-preview-05-20',
+        id: 'gemini-2.5-pro',
+        name: 'Gemini 2.5 Pro',
+        description:
+          'Enhanced thinking and reasoning, multimodal understanding, advanced coding, and more'
+      },
+      {
+        id: 'gemini-2.5-flash',
         name: 'Gemini 2.5 Flash',
         description: 'Adaptive thinking, best for complex problem extraction'
+      },
+      {
+        id: 'gemini-2.5-flash-lite-preview-06-17',
+        name: 'Gemini 2.5 Flash Lite',
+        description: 'A Gemini 2.5 Flash model optimized for cost efficiency and low latency.'
       },
       {
         id: 'gemini-2.0-flash',
@@ -59,16 +70,6 @@ const modelCategories: ModelCategory[] = [
         id: 'gemini-2.0-flash-lite',
         name: 'Gemini 2.0 Flash Lite',
         description: 'Cost efficient and low latency for basic extraction'
-      },
-      {
-        id: 'gemini-1.5-flash',
-        name: 'Gemini 1.5 Flash',
-        description: 'Fast and versatile performance across diverse tasks'
-      },
-      {
-        id: 'gemini-1.5-pro',
-        name: 'Gemini 1.5 Pro',
-        description: 'Complex reasoning for challenging problem extraction'
       }
     ],
     groqModels: [
@@ -102,9 +103,20 @@ const modelCategories: ModelCategory[] = [
     ],
     geminiModels: [
       {
-        id: 'gemini-2.5-flash-preview-05-20',
+        id: 'gemini-2.5-pro',
+        name: 'Gemini 2.5 Pro',
+        description:
+          'Enhanced thinking and reasoning, multimodal understanding, advanced coding, and more'
+      },
+      {
+        id: 'gemini-2.5-flash',
         name: 'Gemini 2.5 Flash',
         description: 'Adaptive thinking, best for complex solution generation'
+      },
+      {
+        id: 'gemini-2.5-flash-lite-preview-06-17',
+        name: 'Gemini 2.5 Flash Lite',
+        description: 'A Gemini 2.5 Flash model optimized for cost efficiency and low latency.'
       },
       {
         id: 'gemini-2.0-flash',
@@ -115,21 +127,6 @@ const modelCategories: ModelCategory[] = [
         id: 'gemini-2.0-flash-lite',
         name: 'Gemini 2.0 Flash Lite',
         description: 'Cost efficient solution generation with low latency'
-      },
-      {
-        id: 'gemini-1.5-flash',
-        name: 'Gemini 1.5 Flash',
-        description: 'Versatile performance for various solution types'
-      },
-      {
-        id: 'gemini-1.5-flash-8b',
-        name: 'Gemini 1.5 Flash 8B',
-        description: 'High volume solution generation for simpler problems'
-      },
-      {
-        id: 'gemini-1.5-pro',
-        name: 'Gemini 1.5 Pro',
-        description: 'Complex reasoning for challenging solution generation'
       }
     ],
     groqModels: [
@@ -143,11 +140,35 @@ const modelCategories: ModelCategory[] = [
         name: 'Llama 4 Maverick',
         description: 'Another capable model for solution generation'
       },
-
+      {
+        id: 'deepseek-r1-distill-llama-70b',
+        name: 'Deepseek R1 Distill Llama 70B',
+        description: 'Thinking and reasoning, multimodal understanding, advanced coding, and more'
+      },
+      {
+        id: 'mistral-saba-24b',
+        name: 'Mistral Saba 24B',
+        description: 'Thinking and reasoning, multimodal understanding, advanced coding, and more'
+      },
+      {
+        id: 'qwen/qwen3-32b',
+        name: 'Qwen 3 32B',
+        description: 'Thinking and reasoning, multimodal understanding, advanced coding, and more'
+      },
+      {
+        id: 'qwen-qwq-32b',
+        name: 'Qwen QWQ 32B',
+        description: 'Highly advanced model for reasoning and multimodal tasks'
+      },
       {
         id: 'llama-3.3-70b-versatile',
         name: 'Llama 3.3 70B Versatile',
         description: 'Very fast model of Llama'
+      },
+      {
+        id: 'llama-3.1-8b-instant',
+        name: 'Llama 3.1 8B Instant',
+        description: 'Optimized for instant responses and cost efficiency'
       },
       {
         id: 'llama3-70b-8192',
@@ -179,9 +200,20 @@ const modelCategories: ModelCategory[] = [
     ],
     geminiModels: [
       {
-        id: 'gemini-2.5-flash-preview-05-20',
+        id: 'gemini-2.5-pro',
+        name: 'Gemini 2.5 Pro',
+        description:
+          'Enhanced thinking and reasoning, multimodal understanding, advanced coding, and more'
+      },
+      {
+        id: 'gemini-2.5-flash',
         name: 'Gemini 2.5 Flash',
         description: 'Adaptive thinking, best for complex debugging scenarios'
+      },
+      {
+        id: 'gemini-2.5-flash-lite-preview-06-17',
+        name: 'Gemini 2.5 Flash Lite',
+        description: 'A Gemini 2.5 Flash model optimized for cost efficiency and low latency.'
       },
       {
         id: 'gemini-2.0-flash',
@@ -192,21 +224,6 @@ const modelCategories: ModelCategory[] = [
         id: 'gemini-2.0-flash-lite',
         name: 'Gemini 2.0 Flash Lite',
         description: 'Cost efficient debugging with low latency'
-      },
-      {
-        id: 'gemini-1.5-flash',
-        name: 'Gemini 1.5 Flash',
-        description: 'Versatile debugging across different codebases'
-      },
-      {
-        id: 'gemini-1.5-flash-8b',
-        name: 'Gemini 1.5 Flash 8B',
-        description: 'High volume debugging for simpler issues'
-      },
-      {
-        id: 'gemini-1.5-pro',
-        name: 'Gemini 1.5 Pro',
-        description: 'Advanced reasoning for complex debugging tasks'
       }
     ],
     groqModels: [
@@ -221,9 +238,34 @@ const modelCategories: ModelCategory[] = [
         description: 'Another capable model for solution generation'
       },
       {
+        id: 'deepseek-r1-distill-llama-70b',
+        name: 'Deepseek R1 Distill Llama 70B',
+        description: 'Thinking and reasoning, multimodal understanding, advanced coding, and more'
+      },
+      {
+        id: 'mistral-saba-24b',
+        name: 'Mistral Saba 24B',
+        description: 'Thinking and reasoning, multimodal understanding, advanced coding, and more'
+      },
+      {
+        id: 'qwen/qwen3-32b',
+        name: 'Qwen 3 32B',
+        description: 'Thinking and reasoning, multimodal understanding, advanced coding, and more'
+      },
+      {
+        id: 'qwen-qwq-32b',
+        name: 'Qwen QWQ 32B',
+        description: 'Highly advanced model for reasoning and multimodal tasks'
+      },
+      {
         id: 'llama-3.3-70b-versatile',
         name: 'Llama 3.3 70B Versatile',
         description: 'Very fast model of Llama'
+      },
+      {
+        id: 'llama-3.1-8b-instant',
+        name: 'Llama 3.1 8B Instant',
+        description: 'Optimized for instant responses and cost efficiency'
       },
       {
         id: 'llama3-70b-8192',

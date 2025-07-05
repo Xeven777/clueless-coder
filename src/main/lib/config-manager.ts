@@ -72,7 +72,7 @@ export class ConfigManager extends EventEmitter {
       return model
     } else if (provider === 'gemini') {
       const allowedModels = [
-        'gemini-2.5-flash-preview-05-20',
+        'gemini-2.5-flash',
         'gemini-2.0-flash',
         'gemini-2.0-flash-lite',
         'gemini-1.5-flash',
