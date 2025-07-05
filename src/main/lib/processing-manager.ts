@@ -13,8 +13,8 @@ import { z } from 'zod'
 export interface IProcessingManager {
   getMainWindow: () => BrowserWindow | null
   getScreenshotManager: () => ScreenshotManager | null
-  getView: () => 'queue' | 'solutions' | 'debug'
-  setView: (view: 'queue' | 'solutions' | 'debug') => void
+  getView: () => 'queue' | 'solutions' | 'debug' | 'question'
+  setView: (view: 'queue' | 'solutions' | 'debug' | 'question') => void
   getProblemInfo: () => any
   setProblemInfo: (problemInfo: any) => void
   getScreenshotQueue: () => string[]
@@ -25,6 +25,8 @@ export interface IProcessingManager {
   deleteScreenshot: (path: string) => Promise<{ success: boolean; error?: string }>
   setHasDebugged: (hasDebugged: boolean) => void
   getHasDebugged: () => boolean
+  getQuestionResponse: () => { answer: string; timestamp: number } | null
+  setQuestionResponse: (response: { answer: string; timestamp: number } | null) => void
   PROCESSING_EVENTS: typeof state.PROCESSING_EVENTS
 }
 
@@ -733,6 +735,93 @@ Your solution should be efficient, well-commented, and handle edge cases.
         return { success: false, error: 'Debug processing aborted by user.' }
       }
       return { success: false, error: error.message || 'Failed to process extra screenshots' }
+    }
+  }
+
+  public async processQuestion(
+    question: string,
+    attachedScreenshots: string[] = []
+  ): Promise<void> {
+    const mainWindow = this.deps.getMainWindow()
+    if (!mainWindow) return
+
+    const llmProvider = this.getActiveLLMProvider()
+    if (!llmProvider) {
+      console.error('Failed to initialize AI provider.')
+      mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.API_KEY_INVALID)
+      return
+    }
+
+    try {
+      mainWindow.webContents.send('processing-status', {
+        message: 'Processing your question...',
+        progress: 20
+      })
+
+      // Prepare the message content
+      const userMessagesContent: CoreMessage['content'] = [
+        {
+          type: 'text',
+          text: question
+        }
+      ]
+
+      // Add attached screenshots if any
+      if (attachedScreenshots.length > 0) {
+        for (const screenshotPath of attachedScreenshots) {
+          try {
+            const screenshotData = fs.readFileSync(screenshotPath)
+            userMessagesContent.push({
+              type: 'image' as const,
+              image: screenshotData,
+              mimeType: 'image/png'
+            })
+          } catch (error) {
+            console.error('Error reading screenshot:', error)
+          }
+        }
+      }
+
+      mainWindow.webContents.send('processing-status', {
+        message: 'Generating response...',
+        progress: 60
+      })
+
+      const { text: answer, usage } = await generateText({
+        model: llmProvider,
+        messages: [
+          {
+            role: 'system',
+            content: `You are a helpful AI assistant. Answer the user's question clearly and concisely. If screenshots are provided, analyze them and incorporate relevant information into your response. Provide helpful, accurate, and conversational responses.`
+          },
+          { role: 'user', content: userMessagesContent }
+        ],
+        temperature: 0.7,
+        maxTokens: llmProvider.provider == 'openai' ? 4000 : 6000
+      })
+
+      console.log('LLM Usage (Question Processing):', usage)
+
+      if (!answer || answer.trim().length === 0) {
+        throw new Error('Failed to generate a response to the question.')
+      }
+
+      const response = {
+        answer: answer.trim(),
+        timestamp: Date.now()
+      }
+
+      this.deps.setQuestionResponse(response)
+      mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.QUESTION_RESPONSE, response)
+
+      mainWindow.webContents.send('processing-status', {
+        progress: 100,
+        message: 'Response generated successfully.'
+      })
+    } catch (error: any) {
+      console.error('Error processing question:', error)
+      const errorMessage = error.message || 'Failed to process question'
+      mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.QUESTION_ERROR, errorMessage)
     }
   }
 }

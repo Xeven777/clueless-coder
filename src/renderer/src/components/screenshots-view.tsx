@@ -3,6 +3,7 @@ import ScreenshotQueue from './queue/screenshot-queue'
 import { useQuery } from '@tanstack/react-query'
 import { useToast } from '../providers/toast-context'
 import { QueueCommands } from './queue/queue-commands'
+import { Button } from './ui/button'
 export interface Screenshot {
   path: string
   preview: string
@@ -19,7 +20,7 @@ async function fetchScreenshots(): Promise<Screenshot[]> {
 }
 
 interface ScreenshotsViewProps {
-  setView: (view: 'queue' | 'solutions' | 'debug') => void
+  setView: (view: 'queue' | 'solutions' | 'debug' | 'question') => void
   currentLanguage: string
   setLanguage: (language: string) => void
 }
@@ -119,6 +120,19 @@ const ScreenshotsView: React.FC<ScreenshotsViewProps> = ({
     <div ref={contentRef} className={`bg-transparent w-1/2`}>
       <div className="px-4 py-3">
         <div className="space-y-3 w-fit">
+          {/* Header with mode switch */}
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-lg font-semibold text-white">Screenshot Mode</h2>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setView('question')}
+              className="text-xs"
+            >
+              Question Mode
+            </Button>
+          </div>
+
           <ScreenshotQueue
             screenshots={screenshots}
             isLoading={isLoading}

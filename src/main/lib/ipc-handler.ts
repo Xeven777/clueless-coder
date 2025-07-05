@@ -7,8 +7,8 @@ export interface IIPCHandler {
   takeScreenshot: () => Promise<string>
   getImagePreview: (filePath: string) => Promise<string>
   clearQueues: () => void
-  setView: (view: 'queue' | 'solutions' | 'debug') => void
-  getView: () => 'queue' | 'solutions' | 'debug'
+  setView: (view: 'queue' | 'solutions' | 'debug' | 'question') => void
+  getView: () => 'queue' | 'solutions' | 'debug' | 'question'
   getScreenshotQueue: () => string[]
   getExtraScreenshotQueue: () => string[]
   moveWindowLeft: () => void
@@ -21,6 +21,7 @@ export interface IIPCHandler {
   PROCESSING_EVENTS: typeof state.PROCESSING_EVENTS
   processingManager: ProcessingManager | null
   setWindowDimensions: (width: number, height: number) => void
+  getQuestionResponse: () => { answer: string; timestamp: number } | null
 }
 
 export function initializeIpcHandler(deps: IIPCHandler): void {
@@ -185,5 +186,30 @@ export function initializeIpcHandler(deps: IIPCHandler): void {
       console.error('Error opening link:', error)
       return { success: false, error: 'Failed to open link' }
     }
+  })
+
+  // Question mode handlers
+  ipcMain.handle(
+    'process-question',
+    async (_, data: { question: string; attachedScreenshots: string[] }) => {
+      try {
+        if (!configManager.hasApiKey()) {
+          const mainWindow = deps.getMainWindow()
+          if (mainWindow) {
+            mainWindow.webContents.send(deps.PROCESSING_EVENTS.API_KEY_INVALID)
+          }
+          return { success: false, error: 'No API key found' }
+        }
+        await deps.processingManager?.processQuestion(data.question, data.attachedScreenshots)
+        return { success: true }
+      } catch (error) {
+        console.error('Error processing question:', error)
+        return { success: false, error: 'Failed to process question' }
+      }
+    }
+  )
+
+  ipcMain.handle('get-question-response', async () => {
+    return deps.getQuestionResponse()
   })
 }

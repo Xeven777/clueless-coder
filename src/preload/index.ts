@@ -11,7 +11,10 @@ export const PROCESSING_EVENTS = {
 
   DEBUG_START: 'debug-start',
   DEBUG_SUCCESS: 'debug-success',
-  DEBUG_ERROR: 'debug-error'
+  DEBUG_ERROR: 'debug-error',
+
+  QUESTION_RESPONSE: 'question-response',
+  QUESTION_ERROR: 'question-error'
 }
 
 const electronAPI = {
@@ -118,6 +121,25 @@ const electronAPI = {
     const subscription = () => callback()
     ipcRenderer.on(PROCESSING_EVENTS.API_KEY_INVALID, subscription)
     return () => ipcRenderer.removeListener(PROCESSING_EVENTS.API_KEY_INVALID, subscription)
+  },
+  // Question mode methods
+  processQuestion: (data: { question: string; attachedScreenshots: string[] }) =>
+    ipcRenderer.invoke('process-question', data),
+  getQuestionResponse: () => ipcRenderer.invoke('get-question-response'),
+  onQuestionResponse: (callback: (response: { answer: string; timestamp: number }) => void) => {
+    const subscription = (_, response: { answer: string; timestamp: number }) => callback(response)
+    ipcRenderer.on(PROCESSING_EVENTS.QUESTION_RESPONSE, subscription)
+    return () => ipcRenderer.removeListener(PROCESSING_EVENTS.QUESTION_RESPONSE, subscription)
+  },
+  onQuestionError: (callback: (error: string) => void) => {
+    const subscription = (_, error: string) => callback(error)
+    ipcRenderer.on(PROCESSING_EVENTS.QUESTION_ERROR, subscription)
+    return () => ipcRenderer.removeListener(PROCESSING_EVENTS.QUESTION_ERROR, subscription)
+  },
+  onToggleMode: (callback: () => void) => {
+    const subscription = () => callback()
+    ipcRenderer.on('toggle-mode', subscription)
+    return () => ipcRenderer.removeListener('toggle-mode', subscription)
   },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   removeListener: (eventName: string, callback: (...args: any[]) => void) => {

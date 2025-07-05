@@ -22,10 +22,11 @@ export const state = {
   screenshotManager: null as ScreenshotManager | null,
   processingManager: null as ProcessingManager | null,
 
-  view: 'queue' as 'queue' | 'solutions' | 'debug',
+  view: 'queue' as 'queue' | 'solutions' | 'debug' | 'question',
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   problemInfo: null as any,
   hasDebugged: false,
+  questionResponse: null as { answer: string; timestamp: number } | null,
 
   PROCESSING_EVENTS: {
     NO_SCREENSHOTS: 'processing-no-screenshots',
@@ -36,7 +37,9 @@ export const state = {
     INITIAL_SOLUTION_ERROR: 'solution-error',
     DEBUG_START: 'debug-start',
     DEBUG_SUCCESS: 'debug-success',
-    DEBUG_ERROR: 'debug-error'
+    DEBUG_ERROR: 'debug-error',
+    QUESTION_RESPONSE: 'question-response',
+    QUESTION_ERROR: 'question-error'
   }
 }
 
@@ -334,6 +337,14 @@ function getScreenshotManager(): ScreenshotManager | null {
   return state.screenshotManager
 }
 
+function getQuestionResponse(): { answer: string; timestamp: number } | null {
+  return state.questionResponse
+}
+
+function setQuestionResponse(response: { answer: string; timestamp: number } | null): void {
+  state.questionResponse = response
+}
+
 function initializeHelpers() {
   state.screenshotManager = new ScreenshotManager(state.view)
   state.processingManager = new ProcessingManager({
@@ -351,6 +362,8 @@ function initializeHelpers() {
     getHasDebugged,
     getMainWindow,
     getScreenshotManager,
+    getQuestionResponse,
+    setQuestionResponse,
     PROCESSING_EVENTS: state.PROCESSING_EVENTS
   })
   state.keyboardShortcutHelper = new KeyboardShortcutHelper({
@@ -431,7 +444,8 @@ async function initializeApp() {
       getImagePreview: getImagePreview,
       PROCESSING_EVENTS: state.PROCESSING_EVENTS,
       processingManager: state.processingManager,
-      setWindowDimensions: setWindowDimensions
+      setWindowDimensions: setWindowDimensions,
+      getQuestionResponse: getQuestionResponse
     })
 
     await createWindow()

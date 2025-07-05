@@ -47,6 +47,17 @@ export interface ElectronAPI {
   onSolutionError: (callback: (error: string) => void) => () => void
   updateContentDimensions: (dimensions: { width: number; height: number }) => void
   openLink: (url: string) => Promise<{ success: boolean; error?: string }>
+  // Question mode methods
+  processQuestion: (data: {
+    question: string
+    attachedScreenshots: string[]
+  }) => Promise<{ success: boolean; error?: string }>
+  getQuestionResponse: () => Promise<{ answer: string; timestamp: number } | null>
+  onQuestionResponse: (
+    callback: (response: { answer: string; timestamp: number }) => void
+  ) => () => void
+  onQuestionError: (callback: (error: string) => void) => () => void
+  onToggleMode: (callback: () => void) => () => void
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   removeListener: (eventName: string, callback: (...args: any[]) => void) => void
 }

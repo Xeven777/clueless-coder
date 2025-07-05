@@ -2,15 +2,15 @@ import { useEffect, useRef, useState } from 'react'
 import ScreenshotsView from './screenshots-view'
 import { useQueryClient } from '@tanstack/react-query'
 import Solutions from './solutions'
+import QuestionView from './question-view'
 import { useToast } from '@renderer/providers/toast-context'
 interface MainAppProps {
   currentLanguage: string
   setLanguage: (language: string) => void
 }
 
-// eslint-disable-next-line react-refresh/only-export-components, react/prop-types
 const MainApp: React.FC<MainAppProps> = ({ currentLanguage, setLanguage }) => {
-  const [view, setView] = useState<'queue' | 'solutions' | 'debug'>('queue')
+  const [view, setView] = useState<'queue' | 'solutions' | 'debug' | 'question'>('queue')
   const containerRef = useRef<HTMLDivElement>(null)
   const queryClient = useQueryClient()
   const { showToast } = useToast()
@@ -63,6 +63,14 @@ const MainApp: React.FC<MainAppProps> = ({ currentLanguage, setLanguage }) => {
       }),
       window.electronAPI.onResetView(() => {
         queryClient.setQueryData(['problem_statement'], null)
+      }),
+      window.electronAPI.onToggleMode(() => {
+        // Toggle between screenshot and question mode
+        if (view === 'queue') {
+          setView('question')
+        } else if (view === 'question') {
+          setView('queue')
+        }
       }),
       window.electronAPI.onSolutionError((error: string) => {
         showToast('Error', error, 'error')
@@ -129,6 +137,12 @@ const MainApp: React.FC<MainAppProps> = ({ currentLanguage, setLanguage }) => {
         />
       ) : view === 'solutions' ? (
         <Solutions setView={setView} currentLanguage={currentLanguage} setLanguage={setLanguage} />
+      ) : view === 'question' ? (
+        <QuestionView
+          setView={setView}
+          currentLanguage={currentLanguage}
+          setLanguage={setLanguage}
+        />
       ) : null}
     </div>
   )

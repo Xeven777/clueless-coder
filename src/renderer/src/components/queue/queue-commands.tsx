@@ -275,6 +275,22 @@ export const QueueCommands: React.FC<QueueCommandsProps> = ({
                             : 'No screenshots to delete'}
                         </p>
                       </div>
+                      <div className="cursor-pointer rounded px-2 py-1.5 hover:bg-white/10 transition-colors">
+                        <div className="flex items-center justify-between">
+                          <span className="truncate">Switch to Question Mode</span>
+                          <div className="flex gap-1 flex-shrink-0">
+                            <span className="bg-white/20 px-1.5 py-0.5 rounded text-[10px] leading-none">
+                              {COMMAND_KEY}
+                            </span>
+                            <span className="bg-white/20 px-1.5 py-0.5 rounded text-[10px] leading-none">
+                              M
+                            </span>
+                          </div>
+                        </div>
+                        <p className="text-[10px] leading-relaxed text-white/70 truncate mt-1">
+                          Switch to question mode for conversational AI
+                        </p>
+                      </div>
                     </div>
 
                     <div className="pt-3 mt-3 border-t border-white/10">

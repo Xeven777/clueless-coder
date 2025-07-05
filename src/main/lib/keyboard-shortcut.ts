@@ -12,7 +12,7 @@ export interface IKeyboardShortcutHelper {
   takeScreenshot: () => Promise<string>
   getImagePreview: (filePath: string) => Promise<string>
   clearQueues: () => void
-  setView: (view: 'queue' | 'solutions' | 'debug') => void
+  setView: (view: 'queue' | 'solutions' | 'debug' | 'question') => void
   processingManager: ProcessingManager | null
 }
 
@@ -134,6 +134,14 @@ export class KeyboardShortcutHelper {
       const mainWindow = this.deps.getMainWindow()
       if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.send('reset-view')
+      }
+    })
+    globalShortcut.register('CommandOrControl+M', () => {
+      console.log('Toggle between screenshot and question mode')
+      const mainWindow = this.deps.getMainWindow()
+      if (mainWindow) {
+        // Send event to toggle mode in the renderer
+        mainWindow.webContents.send('toggle-mode')
       }
     })
   }
