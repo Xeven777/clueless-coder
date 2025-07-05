@@ -16,7 +16,7 @@
 ## 📥 Download
 
 - [**Latest Release**](https://github.com/Xeven777/clueless-coder/releases/latest)
-- [**Windows (x64)**](https://github.com/Xeven777/clueless-coder/releases/download/v1.0.2/cluelessly-1.0.2-setup.exe)
+- [**Windows (x64)**](https://github.com/Xeven777/clueless-coder/releases/download/v1.0.3/cluelessly-1.0.3-setup.exe)
 - [**Linux (AppImage)**](https://github.com/Xeven777/clueless-coder/releases/download/v1.0.3/cluelessly-1.0.3.AppImage)
 - [**Linux (deb)**](https://github.com/Xeven777/clueless-coder/releases/download/v1.0.3/cluelessly_1.0.3_amd64.deb)
 - [**Linux (snap)**](https://github.com/Xeven777/clueless-coder/releases/download/v1.0.3/cluelessly_1.0.3_amd64.snap)
