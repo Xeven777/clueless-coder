@@ -384,15 +384,16 @@ export class ProcessingManager {
         progress: 20
       })
 
-      const userMessagesContent: CoreMessage['content'] = [
+      const userMessagesContent: Array<
+        { type: 'text'; text: string } | { type: 'image'; image: Buffer }
+      > = [
         {
-          type: 'text',
+          type: 'text' as const,
           text: `Extract the coding problem details from these screenshots. Return in JSON format adhering to the provided schema. Preferred coding language we gonna use for this problem is ${language}.`
         },
         ...screenshots.map((screenshot) => ({
           type: 'image' as const,
-          image: screenshot.data, // Pass Buffer directly
-          mimeType: 'image/png' // Or 'image/jpeg' - adjust if necessary
+          image: screenshot.data // Pass Buffer directly
         }))
       ]
 
@@ -759,9 +760,11 @@ Your solution should be efficient, well-commented, and handle edge cases.
       })
 
       // Prepare the message content
-      const userMessagesContent: CoreMessage['content'] = [
+      const userMessagesContent: Array<
+        { type: 'text'; text: string } | { type: 'image'; image: Buffer }
+      > = [
         {
-          type: 'text',
+          type: 'text' as const,
           text: question
         }
       ]
@@ -773,8 +776,7 @@ Your solution should be efficient, well-commented, and handle edge cases.
             const screenshotData = fs.readFileSync(screenshotPath)
             userMessagesContent.push({
               type: 'image' as const,
-              image: screenshotData,
-              mimeType: 'image/png'
+              image: screenshotData
             })
           } catch (error) {
             console.error('Error reading screenshot:', error)

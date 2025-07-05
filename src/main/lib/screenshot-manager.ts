@@ -17,9 +17,9 @@ export class ScreenshotManager {
   private readonly extraScreenshotDir: string
   private readonly tempDir: string
 
-  private view: 'queue' | 'solutions' | 'debug' = 'queue'
+  private view: 'queue' | 'solutions' | 'debug' | 'question' = 'queue'
 
-  constructor(view: 'queue' | 'solutions' | 'debug' = 'queue') {
+  constructor(view: 'queue' | 'solutions' | 'debug' | 'question' = 'queue') {
     this.view = view
 
     this.screenshotDir = path.join(app.getPath('userData'), 'screenshots')
@@ -84,11 +84,11 @@ export class ScreenshotManager {
     }
   }
 
-  public getView(): 'queue' | 'solutions' | 'debug' {
+  public getView(): 'queue' | 'solutions' | 'debug' | 'question' {
     return this.view
   }
 
-  public setView(view: 'queue' | 'solutions' | 'debug'): void {
+  public setView(view: 'queue' | 'solutions' | 'debug' | 'question'): void {
     this.view = view
   }
 

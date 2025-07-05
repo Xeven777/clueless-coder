@@ -37,6 +37,9 @@
 - **Smart Model Selection**:
   - Adaptive model selection based on task complexity
   - Balance between speed and accuracy
+- **Dual Interaction Modes**:
+  - **Screenshot Mode**: Analyze code from screenshots and get structured solutions
+  - **Question Mode**: Ask conversational questions with optional screenshot context
 
 ### 🛠️ Developer Experience
 
@@ -113,30 +116,71 @@ npm build:linux
 
 ## 🎯 Usage Guide
 
-### Basic Workflow
+### Screenshot Mode (Default)
 
 1. Launch the application
-2. Capture code using `Ctrl+H` (or Cmd+Shift+S on Mac)
+2. Capture code using `Ctrl+H` (or Cmd+H on Mac)
 3. Let the AI analyze your code `Ctrl+Enter`
 4. Browse through solutions and explanations
 5. Copy the code or debug information
 
+### Question Mode
+
+1. Switch to Question Mode using the "Question Mode" button or `Ctrl+M` / `Cmd+M`
+2. Type your question in the text area
+3. Optionally attach screenshots for context using "📷 Attach Screenshot"
+4. Submit your question with `Ctrl+Enter` / `Cmd+Enter`
+5. Get conversational AI responses with helpful explanations
+
+### Mode Switching
+
+- **Toggle between modes**: `Ctrl+M` / `Cmd+M`
+- **Screenshot Mode**: Best for analyzing code problems and getting structured solutions
+- **Question Mode**: Perfect for asking general programming questions, getting explanations, or seeking advice
+
 ## ⌨️ Keyboard Shortcuts
 
-| Action                 | Shortcut                   |
-| ---------------------- | -------------------------- |
-| Toggle Visibility      | `Ctrl+B` / `Cmd+B`         |
-| Take Screenshot        | `Ctrl+H` / `Cmd+H`         |
-| Process Screenshot     | `Ctrl+Enter` / `Cmd+Enter` |
-| Delete Last Screenshot | `Ctrl+L` / `Cmd+L`         |
-| Reset View             | `Ctrl+R` / `Cmd+R`         |
-| Quit Application       | `Ctrl+Q` / `Cmd+Q`         |
-| Move Window            | `Ctrl+Arrow Keys`          |
-| Decrease Opacity       | `Ctrl+[` / `Cmd+[`         |
-| Increase Opacity       | `Ctrl+]` / `Cmd+]`         |
-| Zoom Out               | `Ctrl+-` / `Cmd+-`         |
-| Zoom In                | `Ctrl+=` / `Cmd+=`         |
-| Reset Zoom             | `Ctrl+0` / `Cmd+0`         |
+| Action                 | Shortcut                   | Description                                  |
+| ---------------------- | -------------------------- | -------------------------------------------- |
+| Toggle Visibility      | `Ctrl+B` / `Cmd+B`         | Show/hide the application window             |
+| Take Screenshot        | `Ctrl+H` / `Cmd+H`         | Capture a screenshot for analysis            |
+| Process/Submit         | `Ctrl+Enter` / `Cmd+Enter` | Process screenshots or submit questions      |
+| Toggle Mode            | `Ctrl+M` / `Cmd+M`         | Switch between Screenshot and Question modes |
+| Delete Last Screenshot | `Ctrl+L` / `Cmd+L`         | Remove the most recent screenshot            |
+| Reset View             | `Ctrl+R` / `Cmd+R`         | Reset to initial state                       |
+| Quit Application       | `Ctrl+Q` / `Cmd+Q`         | Exit the application                         |
+| Move Window            | `Ctrl+Arrow Keys`          | Reposition the window                        |
+| Decrease Opacity       | `Ctrl+[` / `Cmd+[`         | Make window more transparent                 |
+| Increase Opacity       | `Ctrl+]` / `Cmd+]`         | Make window more opaque                      |
+| Zoom Out               | `Ctrl+-` / `Cmd+-`         | Decrease interface size                      |
+| Zoom In                | `Ctrl+=` / `Cmd+=`         | Increase interface size                      |
+| Reset Zoom             | `Ctrl+0` / `Cmd+0`         | Reset interface to default size              |
+
+## 💬 Question Mode Features
+
+The new Question Mode transforms Cluelessly Coder into a conversational AI assistant for developers:
+
+### Key Features
+
+- **Natural Language Queries**: Ask questions in plain English about programming concepts, debugging, or code optimization
+- **Multimodal Support**: Combine text questions with screenshot context for better understanding
+- **Conversational Responses**: Get detailed explanations, not just code snippets
+- **Context-Aware**: Attach screenshots to provide visual context for your questions
+
+### Example Use Cases
+
+- **Learning**: "Can you explain how async/await works in JavaScript?"
+- **Debugging**: "Why is my React component not re-rendering?" (with screenshot)
+- **Best Practices**: "What's the best way to handle errors in Python?"
+- **Code Review**: "Is there a more efficient way to write this algorithm?" (with code screenshot)
+- **Architecture**: "Should I use Redux or Context API for this use case?"
+
+### How It Works
+
+1. **Switch to Question Mode** using the button or `Ctrl+M` / `Cmd+M`
+2. **Type your question** in natural language
+3. **Optionally attach screenshots** for visual context
+4. **Get detailed explanations** tailored to your specific needs
 
 ### Supported File Types
 

@@ -189,12 +189,12 @@ async function getImagePreview(filePath: string): Promise<string> {
   return state.screenshotManager?.getImagePreview(filePath) || ''
 }
 
-function setView(view: 'queue' | 'solutions' | 'debug'): void {
+function setView(view: 'queue' | 'solutions' | 'debug' | 'question'): void {
   state.view = view
   state.screenshotManager?.setView(view)
 }
 
-function getView(): 'queue' | 'solutions' | 'debug' {
+function getView(): 'queue' | 'solutions' | 'debug' | 'question' {
   return state.view
 }
 
