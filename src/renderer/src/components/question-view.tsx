@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '../providers/toast-context'
 import { Button } from './ui/button'
-import { LanguageSelector } from './language-selector'
 import { COMMAND_KEY } from '@renderer/lib/utils'
 import Markdown from 'react-markdown'
 
@@ -180,7 +179,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({ setView, currentLanguage, s
               >
                 Coder Mode
               </Button>
-              <LanguageSelector currentLanguage={currentLanguage} setLanguage={setLanguage} />
             </div>
           </div>
 
@@ -273,7 +271,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({ setView, currentLanguage, s
                     Loading response...
                   </div>
                 ) : questionResponse ? (
-                  <div className="text-white/90 whitespace-pre-wrap max-h-96 overflow-auto">
+                  <div className="text-white/90 whitespace-pre-wrap max-h-[400px] overflow-auto">
                     <Markdown>{questionResponse.answer}</Markdown>
                   </div>
                 ) : null}

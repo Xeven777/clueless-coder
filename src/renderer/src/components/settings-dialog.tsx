@@ -236,46 +236,6 @@ const modelCategories: ModelCategory[] = [
         id: 'meta-llama/llama-4-maverick-17b-128e-instruct',
         name: 'Llama 4 Maverick',
         description: 'Another capable model for solution generation'
-      },
-      {
-        id: 'deepseek-r1-distill-llama-70b',
-        name: 'Deepseek R1 Distill Llama 70B',
-        description: 'Thinking and reasoning, multimodal understanding, advanced coding, and more'
-      },
-      {
-        id: 'mistral-saba-24b',
-        name: 'Mistral Saba 24B',
-        description: 'Thinking and reasoning, multimodal understanding, advanced coding, and more'
-      },
-      {
-        id: 'qwen/qwen3-32b',
-        name: 'Qwen 3 32B',
-        description: 'Thinking and reasoning, multimodal understanding, advanced coding, and more'
-      },
-      {
-        id: 'qwen-qwq-32b',
-        name: 'Qwen QWQ 32B',
-        description: 'Highly advanced model for reasoning and multimodal tasks'
-      },
-      {
-        id: 'llama-3.3-70b-versatile',
-        name: 'Llama 3.3 70B Versatile',
-        description: 'Very fast model of Llama'
-      },
-      {
-        id: 'llama-3.1-8b-instant',
-        name: 'Llama 3.1 8B Instant',
-        description: 'Optimized for instant responses and cost efficiency'
-      },
-      {
-        id: 'llama3-70b-8192',
-        name: 'Llama 3 70B 8192',
-        description: 'Very fast model of Llama'
-      },
-      {
-        id: 'llama3-8b-8192',
-        name: 'Llama 3 8B 8192',
-        description: 'Very Cheap and fast model of Llama'
       }
     ]
   }

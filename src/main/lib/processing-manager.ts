@@ -71,8 +71,6 @@ export class ProcessingManager {
         if (config.apiKey) {
           this.vercelOpenAI = createOpenAI({
             apiKey: config.apiKey,
-            // You can add other OpenAI specific configurations here from the Vercel SDK docs
-            // e.g., baseURL, defaultHeaders, etc.
             compatibility: 'strict' // or 'compatible' or undefined
           })
           console.log('Vercel OpenAI provider initialized successfully')
@@ -83,7 +81,6 @@ export class ProcessingManager {
         if (config.apiKey) {
           this.vercelGoogle = createGoogleGenerativeAI({
             apiKey: config.apiKey
-            // Add other Google specific configurations here
           })
           console.log('Vercel Google provider initialized successfully')
         } else {
@@ -112,11 +109,11 @@ export class ProcessingManager {
     const config = configManager.loadConfig()
     if (config.apiProvider === 'openai' && this.vercelOpenAI) {
       // Model specified here will be used. Config model names should align.
-      return this.vercelOpenAI(config.extractionModel || 'gpt-4o') // Default model if not in config
+      return this.vercelOpenAI(config.extractionModel || 'gpt-4o')
     } else if (config.apiProvider === 'gemini' && this.vercelGoogle) {
-      return this.vercelGoogle(config.extractionModel || 'gemini-1.5-flash-latest')
+      return this.vercelGoogle(config.extractionModel || 'gemini-2.0-flash')
     } else if (config.apiProvider === 'groq' && this.vercelGroq) {
-      return this.vercelGroq(config.extractionModel || 'groq-1.5-flash-latest')
+      return this.vercelGroq(config.extractionModel || 'meta-llama/llama-4-scout-17b-16e-instruct')
     }
     return null
   }
@@ -126,9 +123,9 @@ export class ProcessingManager {
     if (config.apiProvider === 'openai' && this.vercelOpenAI) {
       return this.vercelOpenAI(config.solutionModel || 'gpt-4o')
     } else if (config.apiProvider === 'gemini' && this.vercelGoogle) {
-      return this.vercelGoogle(config.solutionModel || 'gemini-1.5-flash-latest')
+      return this.vercelGoogle(config.solutionModel || 'gemini-2.0-flash')
     } else if (config.apiProvider === 'groq' && this.vercelGroq) {
-      return this.vercelGroq(config.solutionModel || 'groq-1.5-flash-latest')
+      return this.vercelGroq(config.solutionModel || 'meta-llama/llama-4-scout-17b-16e-instruct')
     }
     return null
   }
@@ -138,9 +135,9 @@ export class ProcessingManager {
     if (config.apiProvider === 'openai' && this.vercelOpenAI) {
       return this.vercelOpenAI(config.debuggingModel || 'gpt-4o')
     } else if (config.apiProvider === 'gemini' && this.vercelGoogle) {
-      return this.vercelGoogle(config.debuggingModel || 'gemini-1.5-flash-latest') // Ensure this model supports vision
+      return this.vercelGoogle(config.debuggingModel || 'gemini-2.0-flash')
     } else if (config.apiProvider === 'groq' && this.vercelGroq) {
-      return this.vercelGroq(config.debuggingModel || 'groq-1.5-flash-latest')
+      return this.vercelGroq(config.debuggingModel || 'meta-llama/llama-4-scout-17b-16e-instruct')
     }
     return null
   }
@@ -412,7 +409,10 @@ export class ProcessingManager {
         mode: 'json', // Enforce JSON output mode if supported by the model/provider
         abortSignal
       })
-      console.log('LLM Usage (Problem Extraction):', usage)
+      console.log({
+        problemInfo,
+        usage
+      })
 
       if (!problemInfo || Object.keys(problemInfo).length === 0) {
         throw new Error('Failed to extract problem information or received empty data.')
@@ -511,7 +511,10 @@ Your solution should be efficient, well-commented, and handle edge cases.
         maxTokens: solutionLLMProvider.provider == 'openai' ? 4000 : 6000,
         abortSignal
       })
-      console.log('LLM Usage (Solution Generation):', usage)
+      console.log({
+        responseContent,
+        usage
+      })
 
       if (!responseContent) {
         throw new Error('No content received from AI for solution generation.')
@@ -679,7 +682,10 @@ Your solution should be efficient, well-commented, and handle edge cases.
         maxTokens: debuggingLLMProvider.provider == 'openai' ? 4000 : 6000,
         abortSignal
       })
-      console.log('LLM Usage (Debugging):', usage)
+      console.log({
+        debugContent,
+        usage
+      })
 
       if (!debugContent) {
         throw new Error('No content received from AI for debug analysis.')
@@ -794,7 +800,22 @@ Your solution should be efficient, well-commented, and handle edge cases.
         messages: [
           {
             role: 'system',
-            content: `You are a helpful AI assistant. Answer the user's question clearly and concisely. If screenshots are provided, analyze them and incorporate relevant information into your response. Provide helpful, accurate, and conversational responses.`
+            content: `<core_identity>You are an assistant called Cluelessly, developed and created by Cluelessly, whose sole purpose is to analyze and solve problems asked by the user or shown on the screen. Your responses must be specific, accurate, and actionable.</core_identity>
+<general_guidelines>
+NEVER use meta-phrases (e.g., "let me help you", "I can see that").
+NEVER summarize unless explicitly requested.
+NEVER provide unsolicited advice.
+NEVER refer to "screenshot" or "image" refer to it as "the screen" if needed.
+ALWAYS be specific, detailed, and accurate.
+ALWAYS acknowledge uncertainty when present.
+ALWAYS use markdown formatting.
+ALWAYS try to responsd in an entusiastic and helpful way as if you are in an interview and trying your best to pass it
+**All math must be rendered using LaTeX**: use $...$ for in-line and $$...$$ for multi-line math. Dollar signs
+used for money must be escaped (e.g., \\$100).
+If asked what model is running or powering you or who you are, respond: "I am Cluelessly powered by a collection of LLM providers". NEVER mention the specific LLM providers or say that Cluelessly is the AI itself.
+If user intent is unclear even with many visible elements do NOT offer solutions or organizational suggestions. Only acknowledge ambiguity and offer a clearly labeled guess if appropriate.
+Tell answers in details of about 200 words minimum.
+</general_guidelines>`
           },
           { role: 'user', content: userMessagesContent }
         ],
@@ -802,7 +823,10 @@ Your solution should be efficient, well-commented, and handle edge cases.
         maxTokens: llmProvider.provider == 'openai' ? 4000 : 6000
       })
 
-      console.log('LLM Usage (Question Processing):', usage)
+      console.log({
+        answer,
+        usage
+      })
 
       if (!answer || answer.trim().length === 0) {
         throw new Error('Failed to generate a response to the question.')
