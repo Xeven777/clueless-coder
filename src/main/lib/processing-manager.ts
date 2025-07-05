@@ -394,7 +394,7 @@ export class ProcessingManager {
         }))
       ]
 
-      const { object: problemInfo, usage } = await generateObject({
+      const { object: problemInfo } = await generateObject({
         model: llmProvider,
         schema: problemInfoSchema,
         messages: [
@@ -409,10 +409,10 @@ export class ProcessingManager {
         mode: 'json', // Enforce JSON output mode if supported by the model/provider
         abortSignal
       })
-      console.log({
-        problemInfo,
-        usage
-      })
+      // console.log({
+      //   problemInfo,
+      //   usage
+      // })
 
       if (!problemInfo || Object.keys(problemInfo).length === 0) {
         throw new Error('Failed to extract problem information or received empty data.')
@@ -498,7 +498,7 @@ For complexity explanations, please be thorough. For example: "Time complexity: 
 
 Your solution should be efficient, well-commented, and handle edge cases.
 `
-      const { text: responseContent, usage } = await generateText({
+      const { text: responseContent } = await generateText({
         model: solutionLLMProvider,
         messages: [
           {
@@ -511,10 +511,10 @@ Your solution should be efficient, well-commented, and handle edge cases.
         maxTokens: solutionLLMProvider.provider == 'openai' ? 4000 : 6000,
         abortSignal
       })
-      console.log({
-        responseContent,
-        usage
-      })
+      // console.log({
+      //   responseContent,
+      //   usage
+      // })
 
       if (!responseContent) {
         throw new Error('No content received from AI for solution generation.')
@@ -654,7 +654,7 @@ Your solution should be efficient, well-commented, and handle edge cases.
         progress: 60
       })
 
-      const { text: debugContent, usage } = await generateText({
+      const { text: debugContent } = await generateText({
         model: debuggingLLMProvider,
         messages: [
           {
@@ -682,10 +682,10 @@ Your solution should be efficient, well-commented, and handle edge cases.
         maxTokens: debuggingLLMProvider.provider == 'openai' ? 4000 : 6000,
         abortSignal
       })
-      console.log({
-        debugContent,
-        usage
-      })
+      // console.log({
+      //   debugContent,
+      //   usage
+      // })
 
       if (!debugContent) {
         throw new Error('No content received from AI for debug analysis.')
@@ -795,7 +795,7 @@ Your solution should be efficient, well-commented, and handle edge cases.
         progress: 60
       })
 
-      const { text: answer, usage } = await generateText({
+      const { text: answer } = await generateText({
         model: llmProvider,
         messages: [
           {
@@ -823,10 +823,10 @@ Tell answers in details of about 200 words minimum.
         maxTokens: llmProvider.provider == 'openai' ? 4000 : 6000
       })
 
-      console.log({
-        answer,
-        usage
-      })
+      // console.log({
+      //   answer,
+      //   usage
+      // })
 
       if (!answer || answer.trim().length === 0) {
         throw new Error('Failed to generate a response to the question.')
