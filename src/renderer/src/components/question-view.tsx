@@ -26,7 +26,7 @@ async function fetchQuestionResponse(): Promise<QuestionResponse | null> {
   }
 }
 
-const QuestionView: React.FC<QuestionViewProps> = ({ setView, currentLanguage, setLanguage }) => {
+const QuestionView: React.FC<QuestionViewProps> = ({ setView }) => {
   const contentRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const { showToast } = useToast()
