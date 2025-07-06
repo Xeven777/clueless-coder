@@ -31,7 +31,7 @@
 ### 🤖 AI-Powered Coding
 
 - **Multiple AI Providers**:
-  - Google Gemini (2.5 Flash, 2.0 Flash, 1.5 Pro, and more)
+  - Google Gemini (2.5 Flash, 2.0 Flash, 2.5 Pro, and more)
   - Groq (Llama 4 and Llama 3 models)
   - Deepseek (R1 Distill Llama 70B)
   - Mistral (Saba 24B)
@@ -202,9 +202,9 @@ The new Question Mode transforms Cluelessly Coder into a conversational AI assis
 
 Choose different models based on your needs:
 
+- **Gemini 2.5 Pro**: Advanced reasoning for most complex problems
 - **Gemini 2.5 Flash**: Best for complex problems
 - **Gemini 2.0 Flash**: Balanced performance
-- **Gemini 1.5 Pro**: Advanced reasoning
 - **GPT-4o**: OpenAI's most capable model
 - **Llama 4**: Scout and Maverick
 - **Llama 3**: Another Open-source alternative
