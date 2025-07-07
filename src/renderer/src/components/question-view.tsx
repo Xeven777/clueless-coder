@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '../providers/toast-context'
 import { Button } from './ui/button'
-import { COMMAND_KEY } from '@renderer/lib/utils'
 import Markdown from 'react-markdown'
 
 interface QuestionViewProps {
@@ -167,7 +166,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({ setView }) => {
     <div ref={contentRef} className="bg-transparent w-full max-w-4xl mx-auto">
       <div className="px-4 py-3">
         <div className="space-y-4">
-          {/* Header with mode switch */}
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-white">Question Mode</h2>
             <div className="flex items-center gap-2">
@@ -175,7 +173,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({ setView }) => {
                 variant="outline"
                 size="sm"
                 onClick={() => setView('queue')}
-                className="text-xs text-white"
+                className="text-xs text-white bg-black/20"
               >
                 Coder Mode
               </Button>
@@ -190,8 +188,8 @@ const QuestionView: React.FC<QuestionViewProps> = ({ setView }) => {
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask any question... (Ctrl/Cmd + Enter to submit)"
-                className="w-full min-h-[120px] p-3 bg-black/20 backdrop-blur-md border border-white/20 rounded-lg text-white placeholder-white/50 resize-none focus:outline-none focus:border-white/40 transition-colors"
+                placeholder="Ask any question..."
+                className="w-full min-h-[100px] p-3 bg-black/20 backdrop-blur-md border border-white/20 rounded-lg text-white placeholder-white/50 resize-none focus:outline-none focus:border-white/40 transition-colors"
                 disabled={isProcessing}
               />
             </div>
@@ -225,7 +223,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({ setView }) => {
               <Button
                 onClick={handleSubmitQuestion}
                 disabled={isProcessing || !question.trim()}
-                className="flex items-center gap-2 text-white border"
+                className="flex items-center gap-2 text-white border bg-black/20"
               >
                 {isProcessing ? (
                   <>
@@ -233,10 +231,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({ setView }) => {
                     Processing...
                   </>
                 ) : (
-                  <>
-                    Submit Question
-                    <span className="text-xs opacity-70">({COMMAND_KEY}+↵)</span>
-                  </>
+                  <>Submit Question</>
                 )}
               </Button>
 
@@ -244,7 +239,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({ setView }) => {
                 variant="outline"
                 onClick={handleAttachScreenshot}
                 disabled={isProcessing}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 bg-black/20"
               >
                 📷 Attach Screenshot
               </Button>
@@ -253,7 +248,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({ setView }) => {
                 variant="outline"
                 onClick={handleClearAll}
                 disabled={isProcessing}
-                className="text-xs"
+                className="text-xs bg-black/20"
               >
                 Clear All
               </Button>

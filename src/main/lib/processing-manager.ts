@@ -751,8 +751,9 @@ Your solution should be efficient, well-commented, and handle edge cases.
   ): Promise<void> {
     const mainWindow = this.deps.getMainWindow()
     if (!mainWindow) return
+    const llmProvider =
+      attachedScreenshots.length > 0 ? this.getActiveLLMProvider() : this.getSolutionLLMProvider()
 
-    const llmProvider = this.getActiveLLMProvider()
     if (!llmProvider) {
       console.error('Failed to initialize AI provider.')
       mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.API_KEY_INVALID)
