@@ -93,8 +93,7 @@ export class ProcessingManager {
       if (config.apiProvider === 'openai') {
         if (config.apiKey) {
           this.vercelOpenAI = createOpenAI({
-            apiKey: config.apiKey,
-            compatibility: 'strict' // or 'compatible' or undefined
+            apiKey: config.apiKey
           })
           console.log('Vercel OpenAI provider initialized successfully')
         } else {
@@ -428,7 +427,7 @@ export class ProcessingManager {
           { role: 'user', content: userMessagesContent }
         ],
         temperature: 0.2,
-        maxTokens: llmProvider.provider == 'openai' ? 4000 : 6000,
+        maxOutputTokens: llmProvider == 'openai' ? 1000 : 1500,
         mode: 'json', // Enforce JSON output mode if supported by the model/provider
         abortSignal
       })
@@ -531,7 +530,7 @@ Your solution should be efficient, well-commented, and handle edge cases.
           { role: 'user', content: promptText }
         ],
         temperature: 0.2,
-        maxTokens: solutionLLMProvider.provider == 'openai' ? 4000 : 6000,
+        maxOutputTokens: 4000,
         abortSignal
       })
       // console.log({
@@ -702,7 +701,7 @@ Your solution should be efficient, well-commented, and handle edge cases.
           { role: 'user', content: userMessagesContent }
         ],
         temperature: 0.2,
-        maxTokens: debuggingLLMProvider.provider == 'openai' ? 4000 : 6000,
+        maxOutputTokens: 4000,
         abortSignal
       })
       // console.log({
@@ -844,7 +843,7 @@ Tell answers in details of about 200 words minimum.
           { role: 'user', content: userMessagesContent }
         ],
         temperature: 0.7,
-        maxTokens: llmProvider.provider == 'openai' ? 4000 : 6000
+        maxOutputTokens: 6000
       })
 
       // console.log({
@@ -951,7 +950,7 @@ Tell answers in details of about 200 words minimum.
           { role: 'user', content: userMessagesContent }
         ],
         temperature: 0.2,
-        maxTokens: llmProvider.provider == 'openai' ? 4000 : 6000,
+        maxOutputTokens: 3000,
         mode: 'json'
       })
 
