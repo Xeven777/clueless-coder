@@ -12,7 +12,7 @@ export interface IKeyboardShortcutHelper {
   takeScreenshot: () => Promise<string>
   getImagePreview: (filePath: string) => Promise<string>
   clearQueues: () => void
-  setView: (view: 'queue' | 'solutions' | 'debug' | 'question') => void
+  setView: (view: 'queue' | 'solutions' | 'debug' | 'question' | 'mcq') => void
   processingManager: ProcessingManager | null
 }
 
@@ -137,7 +137,7 @@ export class KeyboardShortcutHelper {
       }
     })
     globalShortcut.register('CommandOrControl+M', () => {
-      console.log('Toggle between screenshot and question mode')
+      console.log('Cycle through modes: Coder -> Question -> MCQ')
       const mainWindow = this.deps.getMainWindow()
       if (mainWindow) {
         // Send event to toggle mode in the renderer

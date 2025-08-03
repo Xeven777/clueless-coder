@@ -57,6 +57,25 @@ export interface ElectronAPI {
     callback: (response: { answer: string; timestamp: number }) => void
   ) => () => void
   onQuestionError: (callback: (error: string) => void) => () => void
+
+  // MCQ mode methods
+  processMCQ: () => Promise<{ success: boolean; error?: string }>
+  getMcqResponse: () => Promise<{
+    answer: string
+    explanation: string
+    incorrectOptions: string[]
+    timestamp: number
+  } | null>
+  onMcqResponse: (
+    callback: (response: {
+      answer: string
+      explanation: string
+      incorrectOptions: string[]
+      timestamp: number
+    }) => void
+  ) => () => void
+  onMcqError: (callback: (error: string) => void) => () => void
+
   onToggleMode: (callback: () => void) => () => void
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   removeListener: (eventName: string, callback: (...args: any[]) => void) => void

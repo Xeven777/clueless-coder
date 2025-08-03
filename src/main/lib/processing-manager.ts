@@ -13,8 +13,8 @@ import { z } from 'zod'
 export interface IProcessingManager {
   getMainWindow: () => BrowserWindow | null
   getScreenshotManager: () => ScreenshotManager | null
-  getView: () => 'queue' | 'solutions' | 'debug' | 'question'
-  setView: (view: 'queue' | 'solutions' | 'debug' | 'question') => void
+  getView: () => 'queue' | 'solutions' | 'debug' | 'question' | 'mcq'
+  setView: (view: 'queue' | 'solutions' | 'debug' | 'question' | 'mcq') => void
   getProblemInfo: () => any
   setProblemInfo: (problemInfo: any) => void
   getScreenshotQueue: () => string[]
@@ -27,6 +27,20 @@ export interface IProcessingManager {
   getHasDebugged: () => boolean
   getQuestionResponse: () => { answer: string; timestamp: number } | null
   setQuestionResponse: (response: { answer: string; timestamp: number } | null) => void
+  getMcqResponse: () => {
+    answer: string
+    explanation: string
+    incorrectOptions: string[]
+    timestamp: number
+  } | null
+  setMcqResponse: (
+    response: {
+      answer: string
+      explanation: string
+      incorrectOptions: string[]
+      timestamp: number
+    } | null
+  ) => void
   PROCESSING_EVENTS: typeof state.PROCESSING_EVENTS
 }
 
@@ -38,6 +52,15 @@ const problemInfoSchema = z.object({
   example_output: z.string().optional()
 })
 type ProblemInfo = z.infer<typeof problemInfoSchema>
+
+// Define Zod schema for MCQ response
+const mcqResponseSchema = z.object({
+  question: z.string().min(1, 'Question is required.'),
+  options: z.array(z.string()).min(2, 'At least 2 options are required.'),
+  correct_answer: z.string().min(1, 'Correct answer is required.'),
+  explanation: z.string().min(1, 'Explanation is required.'),
+  incorrect_explanations: z.array(z.string()).optional()
+})
 
 export class ProcessingManager {
   private deps: IProcessingManager
@@ -849,6 +872,113 @@ Tell answers in details of about 200 words minimum.
       console.error('Error processing question:', error)
       const errorMessage = error.message || 'Failed to process question'
       mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.QUESTION_ERROR, errorMessage)
+    }
+  }
+
+  public async processMCQ(): Promise<void> {
+    const mainWindow = this.deps.getMainWindow()
+    if (!mainWindow) return
+
+    const llmProvider = this.getActiveLLMProvider()
+    if (!llmProvider) {
+      console.error('Failed to initialize AI provider.')
+      mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.API_KEY_INVALID)
+      return
+    }
+
+    try {
+      const existingScreenshots = this.deps.getScreenshotQueue()
+      if (existingScreenshots.length === 0) {
+        mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.NO_SCREENSHOTS)
+        return
+      }
+
+      mainWindow.webContents.send('processing-status', {
+        message: 'Analyzing MCQ screenshot...',
+        progress: 20
+      })
+
+      const screenshotsData = await Promise.all(
+        existingScreenshots.map(async (path) => {
+          try {
+            return {
+              path,
+              data: fs.readFileSync(path)
+            }
+          } catch (error) {
+            console.error('Error reading screenshot:', error)
+            return null
+          }
+        })
+      )
+
+      const validScreenshots = screenshotsData.filter(Boolean) as Array<{
+        path: string
+        data: Buffer
+      }>
+
+      if (validScreenshots.length === 0) {
+        throw new Error('No valid screenshots to process')
+      }
+
+      const userMessagesContent = validScreenshots.map((screenshot) => ({
+        type: 'image' as const,
+        image: screenshot.data
+      }))
+
+      mainWindow.webContents.send('processing-status', {
+        message: 'Extracting MCQ information...',
+        progress: 50
+      })
+
+      const { object: mcqData } = await generateObject({
+        model: llmProvider,
+        schema: mcqResponseSchema,
+        messages: [
+          {
+            role: 'system',
+            content: `You are an expert MCQ analyzer. Analyze the screenshot of the multiple choice question and extract all relevant information.
+
+            Your task is to:
+            1. Identify the question text
+            2. Extract all answer options (A, B, C, D, etc.)
+            3. Determine the correct answer
+            4. Provide a clear explanation for why the correct answer is right
+            5. Optionally provide brief explanations for why other options are incorrect
+
+            Return the information in JSON format matching the schema fields: question, options, correct_answer, explanation, incorrect_explanations.`
+          },
+          { role: 'user', content: userMessagesContent }
+        ],
+        temperature: 0.2,
+        maxTokens: llmProvider.provider == 'openai' ? 4000 : 6000,
+        mode: 'json'
+      })
+
+      mainWindow.webContents.send('processing-status', {
+        message: 'Generating detailed explanation...',
+        progress: 80
+      })
+
+      // Format the response for the UI
+      const response = {
+        answer: mcqData.correct_answer,
+        explanation: mcqData.explanation,
+        incorrectOptions: mcqData.incorrect_explanations || [],
+        timestamp: Date.now()
+      }
+
+      this.deps.setMcqResponse(response)
+      mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.MCQ_RESPONSE, response)
+
+      mainWindow.webContents.send('processing-status', {
+        progress: 100,
+        message: 'MCQ analysis complete.'
+      })
+    } catch (error: any) {
+      console.error('Error processing MCQ:', error)
+      const errorMessage = error.message || 'Failed to process MCQ'
+      mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.MCQ_ERROR, errorMessage)
     }
   }
 }

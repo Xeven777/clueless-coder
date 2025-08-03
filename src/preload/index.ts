@@ -14,7 +14,10 @@ export const PROCESSING_EVENTS = {
   DEBUG_ERROR: 'debug-error',
 
   QUESTION_RESPONSE: 'question-response',
-  QUESTION_ERROR: 'question-error'
+  QUESTION_ERROR: 'question-error',
+
+  MCQ_RESPONSE: 'mcq-response',
+  MCQ_ERROR: 'mcq-error'
 }
 
 const electronAPI = {
@@ -135,6 +138,35 @@ const electronAPI = {
     const subscription = (_, error: string) => callback(error)
     ipcRenderer.on(PROCESSING_EVENTS.QUESTION_ERROR, subscription)
     return () => ipcRenderer.removeListener(PROCESSING_EVENTS.QUESTION_ERROR, subscription)
+  },
+
+  // MCQ mode methods
+  processMCQ: () => ipcRenderer.invoke('process-mcq'),
+  getMcqResponse: () => ipcRenderer.invoke('get-mcq-response'),
+  onMcqResponse: (
+    callback: (response: {
+      answer: string
+      explanation: string
+      incorrectOptions: string[]
+      timestamp: number
+    }) => void
+  ) => {
+    const subscription = (
+      _,
+      response: {
+        answer: string
+        explanation: string
+        incorrectOptions: string[]
+        timestamp: number
+      }
+    ) => callback(response)
+    ipcRenderer.on(PROCESSING_EVENTS.MCQ_RESPONSE, subscription)
+    return () => ipcRenderer.removeListener(PROCESSING_EVENTS.MCQ_RESPONSE, subscription)
+  },
+  onMcqError: (callback: (error: string) => void) => {
+    const subscription = (_, error: string) => callback(error)
+    ipcRenderer.on(PROCESSING_EVENTS.MCQ_ERROR, subscription)
+    return () => ipcRenderer.removeListener(PROCESSING_EVENTS.MCQ_ERROR, subscription)
   },
   onToggleMode: (callback: () => void) => {
     const subscription = () => callback()

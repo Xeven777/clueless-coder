@@ -22,11 +22,17 @@ export const state = {
   screenshotManager: null as ScreenshotManager | null,
   processingManager: null as ProcessingManager | null,
 
-  view: 'queue' as 'queue' | 'solutions' | 'debug' | 'question',
+  view: 'queue' as 'queue' | 'solutions' | 'debug' | 'question' | 'mcq',
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   problemInfo: null as any,
   hasDebugged: false,
   questionResponse: null as { answer: string; timestamp: number } | null,
+  mcqResponse: null as {
+    answer: string
+    explanation: string
+    incorrectOptions: string[]
+    timestamp: number
+  } | null,
 
   PROCESSING_EVENTS: {
     NO_SCREENSHOTS: 'processing-no-screenshots',
@@ -39,7 +45,9 @@ export const state = {
     DEBUG_SUCCESS: 'debug-success',
     DEBUG_ERROR: 'debug-error',
     QUESTION_RESPONSE: 'question-response',
-    QUESTION_ERROR: 'question-error'
+    QUESTION_ERROR: 'question-error',
+    MCQ_RESPONSE: 'mcq-response',
+    MCQ_ERROR: 'mcq-error'
   }
 }
 
@@ -189,12 +197,12 @@ async function getImagePreview(filePath: string): Promise<string> {
   return state.screenshotManager?.getImagePreview(filePath) || ''
 }
 
-function setView(view: 'queue' | 'solutions' | 'debug' | 'question'): void {
+function setView(view: 'queue' | 'solutions' | 'debug' | 'question' | 'mcq'): void {
   state.view = view
   state.screenshotManager?.setView(view)
 }
 
-function getView(): 'queue' | 'solutions' | 'debug' | 'question' {
+function getView(): 'queue' | 'solutions' | 'debug' | 'question' | 'mcq' {
   return state.view
 }
 
@@ -345,6 +353,26 @@ function setQuestionResponse(response: { answer: string; timestamp: number } | n
   state.questionResponse = response
 }
 
+function getMcqResponse(): {
+  answer: string
+  explanation: string
+  incorrectOptions: string[]
+  timestamp: number
+} | null {
+  return state.mcqResponse
+}
+
+function setMcqResponse(
+  response: {
+    answer: string
+    explanation: string
+    incorrectOptions: string[]
+    timestamp: number
+  } | null
+): void {
+  state.mcqResponse = response
+}
+
 function initializeHelpers() {
   state.screenshotManager = new ScreenshotManager(state.view)
   state.processingManager = new ProcessingManager({
@@ -364,6 +392,8 @@ function initializeHelpers() {
     getScreenshotManager,
     getQuestionResponse,
     setQuestionResponse,
+    getMcqResponse,
+    setMcqResponse,
     PROCESSING_EVENTS: state.PROCESSING_EVENTS
   })
   state.keyboardShortcutHelper = new KeyboardShortcutHelper({
@@ -445,7 +475,8 @@ async function initializeApp() {
       PROCESSING_EVENTS: state.PROCESSING_EVENTS,
       processingManager: state.processingManager,
       setWindowDimensions: setWindowDimensions,
-      getQuestionResponse: getQuestionResponse
+      getQuestionResponse: getQuestionResponse,
+      getMcqResponse: getMcqResponse
     })
 
     await createWindow()

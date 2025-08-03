@@ -20,7 +20,7 @@ async function fetchScreenshots(): Promise<Screenshot[]> {
 }
 
 interface ScreenshotsViewProps {
-  setView: (view: 'queue' | 'solutions' | 'debug' | 'question') => void
+  setView: (view: 'queue' | 'solutions' | 'debug' | 'question' | 'mcq') => void
   currentLanguage: string
   setLanguage: (language: string) => void
 }
@@ -123,14 +123,24 @@ const ScreenshotsView: React.FC<ScreenshotsViewProps> = ({
           {/* Header with mode switch */}
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-lg font-semibold text-white">Coder Mode</h2>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setView('question')}
-              className="text-xs text-white"
-            >
-              Question Mode
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setView('question')}
+                className="text-xs text-white bg-black/20"
+              >
+                Question Mode
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setView('mcq')}
+                className="text-xs text-white bg-black/20"
+              >
+                MCQ Mode
+              </Button>
+            </div>
           </div>
 
           <ScreenshotQueue

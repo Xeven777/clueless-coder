@@ -5,7 +5,7 @@ import { Button } from './ui/button'
 import Markdown from 'react-markdown'
 
 interface QuestionViewProps {
-  setView: (view: 'queue' | 'solutions' | 'debug' | 'question') => void
+  setView: (view: 'queue' | 'solutions' | 'debug' | 'question' | 'mcq') => void
   currentLanguage: string
   setLanguage: (language: string) => void
 }
@@ -176,6 +176,14 @@ const QuestionView: React.FC<QuestionViewProps> = ({ setView }) => {
                 className="text-xs text-white bg-black/20"
               >
                 Coder Mode
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setView('mcq')}
+                className="text-xs text-white bg-black/20"
+              >
+                MCQ Mode
               </Button>
             </div>
           </div>

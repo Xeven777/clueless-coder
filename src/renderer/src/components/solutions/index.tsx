@@ -11,7 +11,7 @@ import SolutionCommands from './solution-commands'
 import ReactMarkdown from 'react-markdown'
 import Debug from '../debug'
 export interface SolutionsProps {
-  setView: (view: 'queue' | 'solutions' | 'debug') => void
+  setView: (view: 'queue' | 'solutions' | 'debug' | 'question' | 'mcq') => void
   currentLanguage: string
   setLanguage: (language: string) => void
 }

@@ -3,6 +3,7 @@ import ScreenshotsView from './screenshots-view'
 import { useQueryClient } from '@tanstack/react-query'
 import Solutions from './solutions'
 import QuestionView from './question-view'
+import MCQView from './mcq-view'
 import { useToast } from '@renderer/providers/toast-context'
 interface MainAppProps {
   currentLanguage: string
@@ -10,7 +11,7 @@ interface MainAppProps {
 }
 
 const MainApp: React.FC<MainAppProps> = ({ currentLanguage, setLanguage }) => {
-  const [view, setView] = useState<'queue' | 'solutions' | 'debug' | 'question'>('queue')
+  const [view, setView] = useState<'queue' | 'solutions' | 'debug' | 'question' | 'mcq'>('queue')
   const containerRef = useRef<HTMLDivElement>(null)
   const queryClient = useQueryClient()
   const { showToast } = useToast()
@@ -65,10 +66,15 @@ const MainApp: React.FC<MainAppProps> = ({ currentLanguage, setLanguage }) => {
         queryClient.setQueryData(['problem_statement'], null)
       }),
       window.electronAPI.onToggleMode(() => {
-        // Toggle between screenshot and question mode
+        // Cycle through all three modes: queue -> question -> mcq -> queue
         if (view === 'queue') {
           setView('question')
         } else if (view === 'question') {
+          setView('mcq')
+        } else if (view === 'mcq') {
+          setView('queue')
+        } else {
+          // Fallback to queue for any other view (solutions, debug)
           setView('queue')
         }
       }),
@@ -143,6 +149,8 @@ const MainApp: React.FC<MainAppProps> = ({ currentLanguage, setLanguage }) => {
           currentLanguage={currentLanguage}
           setLanguage={setLanguage}
         />
+      ) : view === 'mcq' ? (
+        <MCQView setView={setView} currentLanguage={currentLanguage} setLanguage={setLanguage} />
       ) : null}
     </div>
   )

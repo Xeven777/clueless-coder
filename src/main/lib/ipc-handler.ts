@@ -7,8 +7,8 @@ export interface IIPCHandler {
   takeScreenshot: () => Promise<string>
   getImagePreview: (filePath: string) => Promise<string>
   clearQueues: () => void
-  setView: (view: 'queue' | 'solutions' | 'debug' | 'question') => void
-  getView: () => 'queue' | 'solutions' | 'debug' | 'question'
+  setView: (view: 'queue' | 'solutions' | 'debug' | 'question' | 'mcq') => void
+  getView: () => 'queue' | 'solutions' | 'debug' | 'question' | 'mcq'
   getScreenshotQueue: () => string[]
   getExtraScreenshotQueue: () => string[]
   moveWindowLeft: () => void
@@ -22,6 +22,12 @@ export interface IIPCHandler {
   processingManager: ProcessingManager | null
   setWindowDimensions: (width: number, height: number) => void
   getQuestionResponse: () => { answer: string; timestamp: number } | null
+  getMcqResponse: () => {
+    answer: string
+    explanation: string
+    incorrectOptions: string[]
+    timestamp: number
+  } | null
 }
 
 export function initializeIpcHandler(deps: IIPCHandler): void {
@@ -211,5 +217,27 @@ export function initializeIpcHandler(deps: IIPCHandler): void {
 
   ipcMain.handle('get-question-response', async () => {
     return deps.getQuestionResponse()
+  })
+
+  // MCQ mode handlers
+  ipcMain.handle('process-mcq', async () => {
+    try {
+      if (!configManager.hasApiKey()) {
+        const mainWindow = deps.getMainWindow()
+        if (mainWindow) {
+          mainWindow.webContents.send(deps.PROCESSING_EVENTS.API_KEY_INVALID)
+        }
+        return { success: false, error: 'No API key found' }
+      }
+      await deps.processingManager?.processMCQ()
+      return { success: true }
+    } catch (error) {
+      console.error('Error processing MCQ:', error)
+      return { success: false, error: 'Failed to process MCQ' }
+    }
+  })
+
+  ipcMain.handle('get-mcq-response', async () => {
+    return deps.getMcqResponse()
   })
 }
