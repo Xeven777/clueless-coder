@@ -24,7 +24,7 @@ const electronAPI = {
   getConfig: () => ipcRenderer.invoke('get-config'),
   updateConfig: (config: {
     apiKey?: string
-    apiProvider?: 'openai' | 'gemini'
+    apiProvider?: 'openai' | 'gemini' | 'groq' | 'cerebras'
     extractionModel?: string
     solutionModel?: string
     debuggingModel?: string

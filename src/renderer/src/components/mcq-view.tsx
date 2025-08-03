@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '../providers/toast-context'
 import { Button } from './ui/button'
 import Markdown from 'react-markdown'
+import ScreenshotQueue from './queue/screenshot-queue'
 
 interface MCQViewProps {
   setView: (view: 'queue' | 'solutions' | 'debug' | 'question' | 'mcq') => void
@@ -34,6 +35,15 @@ const MCQView: React.FC<MCQViewProps> = ({ setView }) => {
 
   const [isProcessing, setIsProcessing] = useState(false)
 
+  interface Screenshot {
+    id: string
+    path: string
+    preview: string
+    timestamp: number
+  }
+
+  const [screenshots, setScreenshots] = useState<Screenshot[]>([])
+
   const { data: mcqResponse, isLoading: isResponseLoading } = useQuery<MCQResponse | null>({
     queryKey: ['mcq_response'],
     queryFn: fetchMCQResponse,
@@ -55,6 +65,24 @@ const MCQView: React.FC<MCQViewProps> = ({ setView }) => {
 
     updateDimensions()
 
+    // Load initial screenshots
+    const fetchScreenshots = async () => {
+      try {
+        const existing = await window.electronAPI.getScreenshots()
+        const screenshots = (Array.isArray(existing) ? existing : []).map((screenshot) => ({
+          id: screenshot.path,
+          path: screenshot.path,
+          preview: screenshot.preview,
+          timestamp: Date.now()
+        }))
+        setScreenshots(screenshots)
+      } catch (error) {
+        console.error('Error fetching screenshots:', error)
+      }
+    }
+
+    fetchScreenshots()
+
     const cleanupFunctions = [
       window.electronAPI.onMcqResponse((response: MCQResponse) => {
         queryClient.setQueryData(['mcq_response'], response)
@@ -64,6 +92,20 @@ const MCQView: React.FC<MCQViewProps> = ({ setView }) => {
       window.electronAPI.onMcqError((error: string) => {
         setIsProcessing(false)
         showToast('Error', error, 'error')
+      }),
+      window.electronAPI.onScreenshotTaken(async () => {
+        try {
+          const existing = await window.electronAPI.getScreenshots()
+          const screenshots = (Array.isArray(existing) ? existing : []).map((screenshot) => ({
+            id: screenshot.path,
+            path: screenshot.path,
+            preview: screenshot.preview,
+            timestamp: Date.now()
+          }))
+          setScreenshots(screenshots)
+        } catch (error) {
+          console.error('Error fetching screenshots:', error)
+        }
       })
     ]
 
@@ -73,6 +115,11 @@ const MCQView: React.FC<MCQViewProps> = ({ setView }) => {
   }, [queryClient, showToast])
 
   const handleProcessMCQ = async () => {
+    if (screenshots.length === 0) {
+      showToast('No Screenshots', 'Please take a screenshot first using Ctrl+H', 'neutral')
+      return
+    }
+
     setIsProcessing(true)
     try {
       const result = await window.electronAPI.processMCQ()
@@ -86,6 +133,31 @@ const MCQView: React.FC<MCQViewProps> = ({ setView }) => {
       console.error('Error processing MCQ:', error)
       showToast('Error', 'Failed to process MCQ', 'error')
       setIsProcessing(false)
+    }
+  }
+
+  const handleDeleteScreenshot = async (index: number) => {
+    const screenshotToDelete = screenshots[index]
+
+    try {
+      const response = await window.electronAPI.deleteScreenshot(screenshotToDelete.path)
+
+      if (response.success) {
+        const existing = await window.electronAPI.getScreenshots()
+        const screenshots = (Array.isArray(existing) ? existing : []).map((screenshot) => ({
+          id: screenshot.path,
+          path: screenshot.path,
+          preview: screenshot.preview,
+          timestamp: Date.now()
+        }))
+        setScreenshots(screenshots)
+      } else {
+        console.error('Failed to delete screenshot:', response.error)
+        showToast('Error', 'Failed to delete screenshot', 'error')
+      }
+    } catch (error) {
+      console.error('Error deleting screenshot:', error)
+      showToast('Error', 'Failed to delete screenshot', 'error')
     }
   }
 
@@ -115,6 +187,21 @@ const MCQView: React.FC<MCQViewProps> = ({ setView }) => {
             </div>
           </div>
 
+          {/* Screenshots */}
+          {screenshots.length > 0 && (
+            <div className="bg-transparent w-fit">
+              <div className="pb-3">
+                <div className="space-y-3 w-fit">
+                  <ScreenshotQueue
+                    isLoading={isProcessing}
+                    screenshots={screenshots}
+                    onDeleteScreenshot={handleDeleteScreenshot}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Instructions */}
           <div className="bg-black/20 backdrop-blur-md rounded-lg border border-white/10 p-4">
             <h3 className="text-sm font-medium text-white mb-2">How to use MCQ Mode:</h3>
@@ -123,7 +210,7 @@ const MCQView: React.FC<MCQViewProps> = ({ setView }) => {
                 Take a screenshot of your multiple choice question using{' '}
                 <kbd className="px-1 py-0.5 bg-white/10 rounded text-xs">Ctrl+H</kbd>
               </li>
-              <li>Click "Analyze MCQ" to get the AI analysis</li>
+              <li>Click &quot;Analyze MCQ&quot; to get the AI analysis</li>
               <li>View the correct answer with detailed explanations</li>
             </ol>
           </div>
@@ -193,7 +280,8 @@ const MCQView: React.FC<MCQViewProps> = ({ setView }) => {
           {!mcqResponse && !isResponseLoading && (
             <div className="bg-black/20 backdrop-blur-md rounded-lg border border-white/10 p-4 text-center">
               <div className="text-white/60 text-sm">
-                No MCQ analysis yet. Take a screenshot and click "Analyze MCQ" to get started.
+                No MCQ analysis yet. Take a screenshot and click &quot;Analyze MCQ&quot; to get
+                started.
               </div>
             </div>
           )}

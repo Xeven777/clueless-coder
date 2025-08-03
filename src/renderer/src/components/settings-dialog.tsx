@@ -10,7 +10,7 @@ import {
 import { Input } from './ui/input'
 import { Button } from './ui/button'
 import { useToast } from '@renderer/providers/toast-context'
-type APIProvider = 'openai' | 'gemini' | 'groq'
+type APIProvider = 'openai' | 'gemini' | 'groq' | 'cerebras'
 
 type AIModel = {
   id: string
@@ -25,6 +25,7 @@ type ModelCategory = {
   openaiModels: AIModel[]
   geminiModels: AIModel[]
   groqModels: AIModel[]
+  cerebrasModels: AIModel[]
 }
 
 const modelCategories: ModelCategory[] = [
@@ -82,6 +83,48 @@ const modelCategories: ModelCategory[] = [
         id: 'meta-llama/llama-4-scout-17b-16e-instruct',
         name: 'Llama 4 Scout',
         description: 'Another capable model for problem extraction'
+      }
+    ],
+    cerebrasModels: [
+      {
+        id: 'llama-4-scout-17b-16e-instruct',
+        name: 'Llama 4 Scout',
+        description: 'Best overall performance for problem extraction'
+      },
+      {
+        id: 'llama3.1-8b',
+        name: 'Llama 3.1 8B',
+        description: 'Fast and efficient model for basic extraction'
+      },
+      {
+        id: 'llama-3.3-70b',
+        name: 'Llama 3.3 70B',
+        description: 'Large model for complex problem extraction'
+      },
+      {
+        id: 'qwen-3-32b',
+        name: 'Qwen 3 32B',
+        description: 'Advanced reasoning for problem extraction'
+      },
+      {
+        id: 'llama-4-maverick-17b-128e-instruct',
+        name: 'Llama 4 Maverick',
+        description: 'High-performance model for complex extraction'
+      },
+      {
+        id: 'qwen-3-235b-a22b-instruct-2507',
+        name: 'Qwen 3 235B Instruct',
+        description: 'Large-scale model for advanced extraction'
+      },
+      {
+        id: 'qwen-3-235b-a22b-thinking-2507',
+        name: 'Qwen 3 235B Thinking',
+        description: 'Reasoning-focused model for complex problems'
+      },
+      {
+        id: 'qwen-3-coder-480b',
+        name: 'Qwen 3 Coder 480B',
+        description: 'Specialized coding model for technical extraction'
       }
     ]
   },
@@ -180,6 +223,48 @@ const modelCategories: ModelCategory[] = [
         name: 'Llama 3 8B 8192',
         description: 'Very Cheap and fast model of Llama'
       }
+    ],
+    cerebrasModels: [
+      {
+        id: 'llama-4-scout-17b-16e-instruct',
+        name: 'Llama 4 Scout',
+        description: 'Best overall performance for solution generation'
+      },
+      {
+        id: 'llama3.1-8b',
+        name: 'Llama 3.1 8B',
+        description: 'Fast and efficient model for basic solutions'
+      },
+      {
+        id: 'llama-3.3-70b',
+        name: 'Llama 3.3 70B',
+        description: 'Large model for complex solution generation'
+      },
+      {
+        id: 'qwen-3-32b',
+        name: 'Qwen 3 32B',
+        description: 'Advanced reasoning for solution generation'
+      },
+      {
+        id: 'llama-4-maverick-17b-128e-instruct',
+        name: 'Llama 4 Maverick',
+        description: 'High-performance model for complex solutions'
+      },
+      {
+        id: 'qwen-3-235b-a22b-instruct-2507',
+        name: 'Qwen 3 235B Instruct',
+        description: 'Large-scale model for advanced solutions'
+      },
+      {
+        id: 'qwen-3-235b-a22b-thinking-2507',
+        name: 'Qwen 3 235B Thinking',
+        description: 'Reasoning-focused model for complex solutions'
+      },
+      {
+        id: 'qwen-3-coder-480b',
+        name: 'Qwen 3 Coder 480B',
+        description: 'Specialized coding model for technical solutions'
+      }
     ]
   },
   {
@@ -237,6 +322,48 @@ const modelCategories: ModelCategory[] = [
         name: 'Llama 4 Maverick',
         description: 'Another capable model for solution generation'
       }
+    ],
+    cerebrasModels: [
+      {
+        id: 'llama-4-scout-17b-16e-instruct',
+        name: 'Llama 4 Scout',
+        description: 'Best overall performance for debugging'
+      },
+      {
+        id: 'llama3.1-8b',
+        name: 'Llama 3.1 8B',
+        description: 'Fast and efficient model for basic debugging'
+      },
+      {
+        id: 'llama-3.3-70b',
+        name: 'Llama 3.3 70B',
+        description: 'Large model for complex debugging scenarios'
+      },
+      {
+        id: 'qwen-3-32b',
+        name: 'Qwen 3 32B',
+        description: 'Advanced reasoning for debugging'
+      },
+      {
+        id: 'llama-4-maverick-17b-128e-instruct',
+        name: 'Llama 4 Maverick',
+        description: 'High-performance model for complex debugging'
+      },
+      {
+        id: 'qwen-3-235b-a22b-instruct-2507',
+        name: 'Qwen 3 235B Instruct',
+        description: 'Large-scale model for advanced debugging'
+      },
+      {
+        id: 'qwen-3-235b-a22b-thinking-2507',
+        name: 'Qwen 3 235B Thinking',
+        description: 'Reasoning-focused model for complex debugging'
+      },
+      {
+        id: 'qwen-3-coder-480b',
+        name: 'Qwen 3 Coder 480B',
+        description: 'Specialized coding model for technical debugging'
+      }
     ]
   }
 ]
@@ -288,6 +415,10 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
       setExtractionModel('meta-llama/llama-4-scout-17b-16e-instruct')
       setSolutionModel('meta-llama/llama-4-scout-17b-16e-instruct')
       setDebuggingModel('meta-llama/llama-4-scout-17b-16e-instruct')
+    } else if (provider === 'cerebras') {
+      setExtractionModel('llama-4-scout-17b-16e-instruct')
+      setSolutionModel('llama-4-scout-17b-16e-instruct')
+      setDebuggingModel('llama-4-scout-17b-16e-instruct')
     }
   }
 
@@ -332,7 +463,7 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
       setIsLoading(true)
       interface Config {
         apiKey?: string
-        apiProvider?: 'openai' | 'gemini' | 'groq'
+        apiProvider?: 'openai' | 'gemini' | 'groq' | 'cerebras'
         extractionModel?: string
         solutionModel?: string
         debuggingModel?: string
@@ -454,6 +585,26 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
                   </div>
                 </div>
               </div>
+              <div
+                className={`flex-1 p-2 rounded-lg cursor-pointer transition-colors ${
+                  apiProvider === 'cerebras'
+                    ? 'bg-purple-700/30 border border-purple-100/40'
+                    : 'bg-purple-700/10 border border-purple-100/10 hover:bg-purple-600/20'
+                }`}
+                onClick={() => handleProviderChange('cerebras')}
+              >
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`min-w-3 h-3 rounded-full ${
+                      apiProvider === 'cerebras' ? 'bg-white' : 'bg-white/20'
+                    }`}
+                  />
+                  <div className="flex flex-col">
+                    <p className="font-medium text-white text-sm">Cerebras</p>
+                    <p className="text-xs text-white/60">Llama & Qwen</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -463,7 +614,9 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
                 ? 'OpenAI API Key'
                 : apiProvider === 'gemini'
                   ? 'Google AI Studio API Key'
-                  : 'Groq API Key'}
+                  : apiProvider === 'groq'
+                    ? 'Groq API Key'
+                    : 'Cerebras API Key'}
             </label>
             <Input
               id="apiKey"
@@ -473,7 +626,9 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
                   ? 'sk-...'
                   : apiProvider === 'gemini'
                     ? 'AIza...'
-                    : 'gsk_...'
+                    : apiProvider === 'groq'
+                      ? 'gsk_...'
+                      : 'csk-...'
               }
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
@@ -486,7 +641,9 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
                 ? ' OpenAI'
                 : apiProvider === 'groq'
                   ? ' Groq'
-                  : ' Google'}{' '}
+                  : apiProvider === 'gemini'
+                    ? ' Google'
+                    : ' Cerebras'}{' '}
               API keys are used.
             </p>
             <div className="mt-2 p-2 rounded-md bg-white/5 border border-white/10">
@@ -517,7 +674,7 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
                   </p>
                   <p className="text-xs text-white/60">2. Create an API key and paste it here</p>
                 </>
-              ) : (
+              ) : apiProvider === 'groq' ? (
                 <>
                   <p className="text-xs text-white/60 mb-1">
                     1. Go to{' '}
@@ -526,6 +683,19 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
                       className="text-blue-400 hover:underline cursor-pointer"
                     >
                       Groq Cloud API Keys
+                    </button>
+                  </p>
+                  <p className="text-xs text-white/60">2. Create an API key and paste it here</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-xs text-white/60 mb-1">
+                    1. Go to{' '}
+                    <button
+                      onClick={() => openExternalLink('https://cloud.cerebras.ai/platform')}
+                      className="text-blue-400 hover:underline cursor-pointer"
+                    >
+                      Cerebras Cloud Platform
                     </button>
                   </p>
                   <p className="text-xs text-white/60">2. Create an API key and paste it here</p>
@@ -590,7 +760,9 @@ export function SettingsDialog({ open: openProp, onOpenChange }: SettingsDialogP
                   ? category.openaiModels
                   : apiProvider === 'gemini'
                     ? category.geminiModels
-                    : category.groqModels
+                    : apiProvider === 'groq'
+                      ? category.groqModels
+                      : category.cerebrasModels
 
               return (
                 <div key={category.key} className="mb-4">

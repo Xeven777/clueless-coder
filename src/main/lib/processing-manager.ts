@@ -8,6 +8,7 @@ import { generateText, generateObject, CoreMessage, LanguageModel } from 'ai'
 import { createOpenAI } from '@ai-sdk/openai'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { createGroq } from '@ai-sdk/groq'
+import { createCerebras } from '@ai-sdk/cerebras'
 import { z } from 'zod'
 
 export interface IProcessingManager {
@@ -68,6 +69,7 @@ export class ProcessingManager {
   private vercelOpenAI: ReturnType<typeof createOpenAI> | null = null
   private vercelGoogle: ReturnType<typeof createGoogleGenerativeAI> | null = null
   private vercelGroq: ReturnType<typeof createGroq> | null = null
+  private vercelCerebras: ReturnType<typeof createCerebras> | null = null
 
   private currentProcessingAbortController: AbortController | null = null
   private currentExtraProcessingAbortController: AbortController | null = null
@@ -89,6 +91,7 @@ export class ProcessingManager {
       this.vercelOpenAI = null
       this.vercelGoogle = null
       this.vercelGroq = null
+      this.vercelCerebras = null
 
       if (config.apiProvider === 'openai') {
         if (config.apiKey) {
@@ -112,11 +115,19 @@ export class ProcessingManager {
         if (config.apiKey) {
           this.vercelGroq = createGroq({
             apiKey: config.apiKey
-            // Add other Groq specific configurations here
           })
           console.log('Vercel Groq provider initialized successfully')
         } else {
           console.log('Vercel Groq provider not initialized: No API key provided')
+        }
+      } else if (config.apiProvider === 'cerebras') {
+        if (config.apiKey) {
+          this.vercelCerebras = createCerebras({
+            apiKey: config.apiKey
+          })
+          console.log('Vercel Cerebras provider initialized successfully')
+        } else {
+          console.log('Vercel Cerebras provider not initialized: No API key provided')
         }
       }
     } catch (error) {
@@ -124,6 +135,7 @@ export class ProcessingManager {
       this.vercelOpenAI = null
       this.vercelGoogle = null
       this.vercelGroq = null
+      this.vercelCerebras = null
     }
   }
 
@@ -136,6 +148,8 @@ export class ProcessingManager {
       return this.vercelGoogle(config.extractionModel || 'gemini-2.0-flash')
     } else if (config.apiProvider === 'groq' && this.vercelGroq) {
       return this.vercelGroq(config.extractionModel || 'meta-llama/llama-4-scout-17b-16e-instruct')
+    } else if (config.apiProvider === 'cerebras' && this.vercelCerebras) {
+      return this.vercelCerebras(config.extractionModel || 'llama-4-scout-17b-16e-instruct')
     }
     return null
   }
@@ -148,6 +162,8 @@ export class ProcessingManager {
       return this.vercelGoogle(config.solutionModel || 'gemini-2.0-flash')
     } else if (config.apiProvider === 'groq' && this.vercelGroq) {
       return this.vercelGroq(config.solutionModel || 'meta-llama/llama-4-scout-17b-16e-instruct')
+    } else if (config.apiProvider === 'cerebras' && this.vercelCerebras) {
+      return this.vercelCerebras(config.solutionModel || 'llama-4-scout-17b-16e-instruct')
     }
     return null
   }
@@ -160,6 +176,8 @@ export class ProcessingManager {
       return this.vercelGoogle(config.debuggingModel || 'gemini-2.0-flash')
     } else if (config.apiProvider === 'groq' && this.vercelGroq) {
       return this.vercelGroq(config.debuggingModel || 'meta-llama/llama-4-scout-17b-16e-instruct')
+    } else if (config.apiProvider === 'cerebras' && this.vercelCerebras) {
+      return this.vercelCerebras(config.debuggingModel || 'llama-4-scout-17b-16e-instruct')
     }
     return null
   }

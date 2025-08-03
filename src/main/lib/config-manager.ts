@@ -6,7 +6,7 @@ import OpenAI from 'openai'
 
 interface Config {
   apiKey: string
-  apiProvider: 'openai' | 'gemini' | 'groq'
+  apiProvider: 'openai' | 'gemini' | 'groq' | 'cerebras'
   extractionModel: string
   solutionModel: string
   debuggingModel: string
@@ -62,7 +62,10 @@ export class ConfigManager extends EventEmitter {
     }
   }
 
-  private sanitizeModelSelection(model: string, provider: 'openai' | 'gemini' | 'groq') {
+  private sanitizeModelSelection(
+    model: string,
+    provider: 'openai' | 'gemini' | 'groq' | 'cerebras'
+  ) {
     if (provider === 'openai') {
       const allowedModels = ['gpt-4o-mini', 'gpt-4o']
       if (!allowedModels.includes(model)) {
@@ -99,6 +102,24 @@ export class ConfigManager extends EventEmitter {
           `Invalid model: ${model} for provider: ${provider}. Defaulting to meta-llama/llama-4-scout-17b-16e-instruct`
         )
         return 'meta-llama/llama-4-scout-17b-16e-instruct'
+      }
+      return model
+    } else if (provider === 'cerebras') {
+      const allowedModels = [
+        'llama-4-scout-17b-16e-instruct',
+        'llama3.1-8b',
+        'llama-3.3-70b',
+        'qwen-3-32b',
+        'llama-4-maverick-17b-128e-instruct',
+        'qwen-3-235b-a22b-instruct-2507',
+        'qwen-3-235b-a22b-thinking-2507',
+        'qwen-3-coder-480b'
+      ]
+      if (!allowedModels.includes(model)) {
+        console.log(
+          `Invalid model: ${model} for provider: ${provider}. Defaulting to llama-4-scout-17b-16e-instruct`
+        )
+        return 'llama-4-scout-17b-16e-instruct'
       }
       return model
     }
@@ -240,20 +261,25 @@ export class ConfigManager extends EventEmitter {
     return !!config.apiKey && config.apiKey.trim().length > 0
   }
 
-  public isValidApiKeyFormat(apiKey: string, provider?: 'openai' | 'gemini' | 'groq'): boolean {
+  public isValidApiKeyFormat(
+    apiKey: string,
+    provider?: 'openai' | 'gemini' | 'groq' | 'cerebras'
+  ): boolean {
     if (provider === 'openai') {
       return apiKey.trim().startsWith('sk-')
     } else if (provider === 'gemini') {
       return apiKey.trim().startsWith('AIzaSyB')
     } else if (provider === 'groq') {
       return apiKey.trim().startsWith('gsk_')
+    } else if (provider === 'cerebras') {
+      return apiKey.trim().startsWith('csk-')
     }
     return false
   }
 
   public async testApiKey(
     apiKey: string,
-    provider?: 'openai' | 'gemini' | 'groq'
+    provider?: 'openai' | 'gemini' | 'groq' | 'cerebras'
   ): Promise<{
     valid: boolean
     error?: string
@@ -263,6 +289,8 @@ export class ConfigManager extends EventEmitter {
         provider = 'openai'
       } else if (apiKey.trim().startsWith('gsk_')) {
         provider = 'groq'
+      } else if (apiKey.trim().startsWith('csk-')) {
+        provider = 'cerebras'
       } else {
         provider = 'gemini'
       }
@@ -274,6 +302,8 @@ export class ConfigManager extends EventEmitter {
       return this.testGeminiKey()
     } else if (provider === 'groq') {
       return this.testGroqKey(apiKey)
+    } else if (provider === 'cerebras') {
+      return this.testCerebrasKey(apiKey)
     }
 
     return { valid: false, error: 'Invalid provider' }
@@ -335,6 +365,37 @@ export class ConfigManager extends EventEmitter {
       return {
         valid: false,
         error: error instanceof Error ? error.message : 'Failed to validate Groq API key'
+      }
+    }
+  }
+
+  private async testCerebrasKey(apiKey: string): Promise<{
+    valid: boolean
+    error?: string
+  }> {
+    try {
+      const response = await fetch('https://api.cerebras.ai/v1/models', {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`)
+      }
+
+      const data = await response.json()
+      if (data && Array.isArray(data.data)) {
+        return { valid: true }
+      }
+
+      return { valid: false, error: 'Invalid API response' }
+    } catch (error) {
+      console.error('Cerebras API key test failed:', error)
+      return {
+        valid: false,
+        error: error instanceof Error ? error.message : 'Failed to validate Cerebras API key'
       }
     }
   }

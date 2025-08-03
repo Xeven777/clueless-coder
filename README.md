@@ -1,6 +1,6 @@
 <div align="center">
   <h1>🤖 Cluelessly Coder</h1>
-  <p>A powerful desktop application that helps developers solve coding problems by analyzing screenshots of code and providing AI-powered solutions.</p>
+  <p>A powerful desktop application that helps developers solve MCQS, coding problems by analyzing screenshots of code and providing AI-powered solutions.</p>
   
 <img src="https://i.postimg.cc/cdqKxKyy/700-1x-shots-so.jpg" alt="">
 
@@ -32,7 +32,7 @@
 
 - **Multiple AI Providers**:
   - Google Gemini (2.5 Flash, 2.0 Flash, 2.5 Pro, and more)
-  - Groq (Llama 4 and Llama 3 models)
+  - Llama (Llama 4 and Llama 3 models)
   - Deepseek (R1 Distill Llama 70B)
   - Mistral (Saba 24B)
   - Qwen (Qwen3 32B and Qwen QWQ 32B)
@@ -40,9 +40,10 @@
 - **Smart Model Selection**:
   - Adaptive model selection based on task complexity
   - Balance between speed and accuracy
-- **Dual Interaction Modes**:
+- **Triple Interaction Modes**:
   - **Coder Mode**: Analyze code from screenshots and get structured solutions
   - **Question Mode**: Ask conversational questions with optional screenshot context
+  - **MCQ Mode**: Analyze multiple choice questions from screenshots and get correct answers with detailed explanations
 
 ### 🛠️ Developer Experience
 
@@ -101,20 +102,20 @@
 ### Development Mode
 
 ```bash
-npm dev  # or bun run dev / yarn dev
+bun dev  # or npm run dev / yarn dev
 ```
 
 ### Production Build
 
 ```bash
 # For Windows
-npm build:win
+bun build:win
 
 # For macOS
-npm build:mac
+bun build:mac
 
 # For Linux
-npm build:linux
+bun build:linux
 ```
 
 ## 🎯 Usage Guide
@@ -135,11 +136,20 @@ npm build:linux
 4. Submit your question with `Ctrl+Enter` / `Cmd+Enter`
 5. Get conversational AI responses with helpful explanations
 
+### MCQ Mode
+
+1. Switch to MCQ Mode using the "MCQ Mode" button or `Ctrl+M` / `Cmd+M`
+2. Take a screenshot of your multiple choice question using `Ctrl+H` / `Cmd+H`
+3. Click "Analyze MCQ" to process the question
+4. Get the correct answer highlighted with detailed explanations
+5. View explanations for why other options are incorrect (when available)
+
 ### Mode Switching
 
-- **Toggle between modes**: `Ctrl+M` / `Cmd+M`
+- **Cycle through modes**: `Ctrl+M` / `Cmd+M`
 - **Coder Mode**: Best for analyzing code problems and getting structured solutions
 - **Question Mode**: Perfect for asking general programming questions, getting explanations, or seeking advice
+- **MCQ Mode**: Ideal for analyzing multiple choice questions and understanding correct answers with explanations
 
 ## ⌨️ Keyboard Shortcuts
 
@@ -148,7 +158,7 @@ npm build:linux
 | Toggle Visibility      | `Ctrl+B` / `Cmd+B`         | Show/hide the application window             |
 | Take Screenshot        | `Ctrl+H` / `Cmd+H`         | Capture a screenshot for analysis            |
 | Process/Submit         | `Ctrl+Enter` / `Cmd+Enter` | Process screenshots or submit questions      |
-| Toggle Mode            | `Ctrl+M` / `Cmd+M`         | Switch between Screenshot and Question modes |
+| Toggle Mode            | `Ctrl+M` / `Cmd+M`         | Cycle between Coder, Question, and MCQ modes |
 | Delete Last Screenshot | `Ctrl+L` / `Cmd+L`         | Remove the most recent screenshot            |
 | Reset View             | `Ctrl+R` / `Cmd+R`         | Reset to initial state                       |
 | Quit Application       | `Ctrl+Q` / `Cmd+Q`         | Exit the application                         |
@@ -202,15 +212,26 @@ The new Question Mode transforms Cluelessly Coder into a conversational AI assis
 
 Choose different models based on your needs:
 
-- **Gemini 2.5 Pro**: Advanced reasoning for most complex problems
-- **Gemini 2.5 Flash**: Best for complex problems
-- **Gemini 2.0 Flash**: Balanced performance
-- **GPT-4o**: OpenAI's most capable model
-- **Llama 4**: Scout and Maverick
-- **Llama 3**: Another Open-source alternative
-- **Deepseek**: R1 Distill Llama 70B
-- **Mistral**: Saba 24B
-- **Qwen**: Qwen3 32B , Qwen QWQ 32B
+- Gemini 2.5 Pro
+- Gemini 2.5 Flash
+- Gemini 2.0 Flash
+- GPT-4o
+- Llama 4 Scout
+- Llama 4 Maverick
+- Llama 3.1 8B
+- Llama 3.1 8B Instant
+- Llama 3.3 70B
+- Llama 3.3 70B Versatile
+- Qwen 3 32B
+- Qwen 3 235B Instruct
+- Qwen 3 235B Thinking
+- Qwen 3 480B Coder
+- Gemma 2 9B IT
+- Deepseek R1 Distill Llama 70B
+- Meta Llama Prompt Guard 2 22M
+- Meta Llama Prompt Guard 2 86M
+- MoonshotAI Kimi K2 Instruct
+- Qwen/Qwen3-32B
 
 ## 🤝 Contributing
 

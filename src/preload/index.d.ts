@@ -1,7 +1,7 @@
 export interface ElectronAPI {
   getConfig: () => Promise<{
     apiKey?: string
-    apiProvider?: 'openai' | 'gemini' | 'groq'
+    apiProvider?: 'openai' | 'gemini' | 'groq' | 'cerebras'
     extractionModel?: string
     solutionModel?: string
     debuggingModel?: string
@@ -9,7 +9,7 @@ export interface ElectronAPI {
   }>
   updateConfig: (config: {
     apiKey?: string
-    apiProvider?: 'openai' | 'gemini' | 'groq'
+    apiProvider?: 'openai' | 'gemini' | 'groq' | 'cerebras'
     extractionModel?: string
     solutionModel?: string
     debuggingModel?: string
